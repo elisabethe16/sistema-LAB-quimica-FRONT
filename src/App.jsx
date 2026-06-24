@@ -58,9 +58,9 @@ function App() {
       <h2 style={{fontSize: '32px', color: '#000080'}}>Bem-vindo(a) ao Controle de Insumos</h2>
       <p style={{fontSize: '18px'}}>Usuário logado: <strong>{usuarioLogado.nome}</strong> ({usuarioLogado.cargo})</p>
       
-      {/* Assinatura no fim da tela */}
+      {/* Assinatura corrigida com 'D' maiúsculo */}
       <div style={{marginTop: 'auto', paddingBottom: '20px', color: '#666', fontSize: '14px', fontWeight: 'bold'}}>
-        desenvolvido por: Everson Andrade e Maria Elisabethe Almeida
+        Desenvolvido por: Everson Andrade e Maria Elisabethe Almeida
       </div>
     </div>
   );
@@ -70,16 +70,20 @@ function App() {
     const [listaInsumos, setListaInsumos] = useState([]);
     const [listaUsuarios, setListaUsuarios] = useState([]);
     
-    const [form, setForm] = useState({ usuario: usuarioLogado.nome, insumo: '', finalidade: '', quantidade: '' });
+    const [form, setForm] = useState({ usuario: usuarioLogado.nome, insumo: '', finalidade: '', quantity: '' });
 
     useEffect(() => {
       axios.get(`${API_URL}/insumos`).then(res => {
-        setListaInsumos(res.data);
-        if (res.data.length > 0) setForm(f => ({...f, insumo: res.data[0].nome}));
+        // Ordena os insumos em ordem alfabética pelo nome
+        const insumosOrdenados = res.data.sort((a, b) => a.nome.localeCompare(b.nome));
+        setListaInsumos(insumosOrdenados);
+        if (insumosOrdenados.length > 0) setForm(f => ({...f, insumo: insumosOrdenados[0].nome}));
       });
       
       axios.get(`${API_URL}/usuarios`).then(res => {
-        setListaUsuarios(res.data);
+        // Ordena os usuários em ordem alfabética pelo nome
+        const usuariosOrdenados = res.data.sort((a, b) => a.nome.localeCompare(b.nome));
+        setListaUsuarios(usuariosOrdenados);
       });
     }, []);
 
@@ -131,18 +135,19 @@ function App() {
 
   // ==================== TELA 3: CADASTRAR / EDITAR INSUMO ====================
   const TelaCadastroInsumo = ({ insumoParaEditar, fecharEdicao }) => {
-    const [form, setForm] = useState({ nome: '', categoria: '', localizacao: '', quantidade_estoque: '', unidade_medida: 'und' });
+    const [form, setForm] = useState({ nome: '', categoria: 'Ácidos', localizacao: 'Armário 1', quantidade_estoque: '', unidade_medida: 'und' });
     
-    const [categoriasExistentes, setCategoriasExistentes] = useState(['Ácidos', 'Indicadores', 'Hidróxidos e Bases', 'Sais', 'Orgânicos']);
-    const [localizacoesExistentes, setLocalizacoesExistentes] = useState(['Armário 1', 'Armário 2', 'Bancada', 'Geladeira']);
+    const [categoriasExistentes, setCategoriasExistentes] = useState(['Ácidos', 'Indicadores', 'Hidróxidos e Bases', 'Sais', 'Orgânicos'].sort((a,b) => a.localeCompare(b)));
+    const [localizacoesExistentes, setLocalizacoesExistentes] = useState(['Armário 1', 'Armário 2', 'Bancada', 'Geladeira'].sort((a,b) => a.localeCompare(b)));
     
     const [isNovaCategoria, setIsNovaCategoria] = useState(false);
     const [isNovaLocalizacao, setIsNovaLocalizacao] = useState(false);
 
     useEffect(() => {
       axios.get(`${API_URL}/insumos`).then(res => {
-        const cats = [...new Set([...categoriasExistentes, ...res.data.map(i => i.categoria)])];
-        const locs = [...new Set([...localizacoesExistentes, ...res.data.map(i => i.localizacao).filter(Boolean)])];
+        // Junta e ordena em ordem alfabética as categorias e localizações vindas do banco
+        const cats = [...new Set([...categoriasExistentes, ...res.data.map(i => i.categoria)])].sort((a, b) => a.localeCompare(b));
+        const locs = [...new Set([...localizacoesExistentes, ...res.data.map(i => i.localizacao).filter(Boolean)])].sort((a, b) => a.localeCompare(b));
         
         setCategoriasExistentes(cats);
         setLocalizacoesExistentes(locs);
@@ -172,7 +177,7 @@ function App() {
       try {
         if (insumoParaEditar) {
           await axios.put(`${API_URL}/insumos/${insumoParaEditar.id}`, dadosInsumo);
-          alert('Insumo atualizado com sucesso!');
+          alert('Insumo updated com sucesso!');
           fecharEdicao();
         } else {
           await axios.post(`${API_URL}/insumos`, dadosInsumo);
@@ -211,15 +216,15 @@ function App() {
                   </select>
                 ) : (
                   <div style={{ display: 'flex', gap: '5px' }}>
-                    <input type="text" value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} placeholder="Nova categoria" required autoFocus />
+                    <input type="text" value={form.categoria} onChange={(e) => setForm({ ...form, ...form, categoria: e.target.value })} placeholder="Nova categoria" required autoFocus />
                     <button type="button" style={{ padding: '0 10px', backgroundColor: '#666', color: 'white', border: 'none', borderRadius: '5px' }} onClick={() => { setIsNovaCategoria(false); setForm({ ...form, categoria: categoriasExistentes[0] || 'Ácidos' }); }}>X</button>
                   </div>
                 )}
               </div>
 
-              {/* CAMPO LOCALIZAÇÃO */}
+              {/* CAMPO LOCALIZAÇÃO ENCURTADO */}
               <div className="form-group" style={{ flex: 1 }}>
-                <label>Localização (Onde está guardado?):</label>
+                <label>Localização:</label>
                 {!isNovaLocalizacao ? (
                   <select value={form.localizacao} onChange={(e) => {
                       if (e.target.value === 'NOVA') { setIsNovaLocalizacao(true); setForm({ ...form, localizacao: '' }); }
@@ -270,7 +275,10 @@ function App() {
     const [insumoSelecionado, setInsumoSelecionado] = useState(null);
 
     const carregarAcervo = () => {
-      axios.get(`${API_URL}/insumos`).then(res => setInsumos(res.data));
+      axios.get(`${API_URL}/insumos`).then(res => {
+        const ordenados = res.data.sort((a, b) => a.nome.localeCompare(b.nome));
+        setInsumos(ordenados);
+      });
     };
 
     useEffect(() => { carregarAcervo(); }, []);
@@ -381,7 +389,10 @@ function App() {
     const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
 
     const carregarUsuarios = () => {
-      axios.get(`${API_URL}/usuarios`).then(res => setUsuarios(res.data));
+      axios.get(`${API_URL}/usuarios`).then(res => {
+        const ordenados = res.data.sort((a, b) => a.nome.localeCompare(b.nome));
+        setUsuarios(ordenados);
+      });
     };
 
     useEffect(() => { carregarUsuarios(); }, []);
