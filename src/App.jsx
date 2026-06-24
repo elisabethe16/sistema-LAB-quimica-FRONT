@@ -50,13 +50,18 @@ function App() {
 
   // ==================== TELA 1: INÍCIO ====================
   const TelaInicio = () => (
-    <div className="page-container" style={{flexDirection: 'column', alignItems: 'center', marginTop: '50px'}}>
-      <div style={{display: 'flex', gap: '30px', marginBottom: '30px'}}>
+    <div className="page-container" style={{flexDirection: 'column', alignItems: 'center', minHeight: 'calc(100vh - 80px)', position: 'relative'}}>
+      <div style={{display: 'flex', gap: '30px', marginBottom: '30px', marginTop: '50px'}}>
         <img src="/logo-eng-quimica.png" alt="Engenharia Química" style={{height: '120px'}} />
         <img src="/logo-uabj.png" alt="UABJ" style={{height: '120px'}} />
       </div>
       <h2 style={{fontSize: '32px', color: '#000080'}}>Bem-vindo(a) ao Controle de Insumos</h2>
       <p style={{fontSize: '18px'}}>Usuário logado: <strong>{usuarioLogado.nome}</strong> ({usuarioLogado.cargo})</p>
+      
+      {/* Assinatura no fim da tela */}
+      <div style={{marginTop: 'auto', paddingBottom: '20px', color: '#666', fontSize: '14px', fontWeight: 'bold'}}>
+        desenvolvido por: Everson Andrade e Maria Elisabethe Almeida
+      </div>
     </div>
   );
 
@@ -106,7 +111,7 @@ function App() {
             <div className="form-group">
               <label>Insumo:</label>
               <select value={form.insumo} onChange={(e) => setForm({...form, insumo: e.target.value})} required>
-                {listaInsumos.map(item => <option key={item.id} value={item.nome}>{item.nome} ({item.quantidade_estoque} {item.unidade_medida} disponíveis)</option>)}
+                {listaInsumos.map(item => <option key={item.id} value={item.nome}>{item.nome} ({item.quantidade_estoque} {item.unidade_medida} em {item.localizacao})</option>)}
               </select>
             </div>
             <div className="form-group">
@@ -126,35 +131,41 @@ function App() {
 
   // ==================== TELA 3: CADASTRAR / EDITAR INSUMO ====================
   const TelaCadastroInsumo = ({ insumoParaEditar, fecharEdicao }) => {
-    const [form, setForm] = useState({ nome: '', categoria: 'Ácidos', quantidade_estoque: '', unidade_medida: 'und' });
-    const [categoriasExistentes, setCategoriasExistentes] = useState(['Ácidos', 'Indicadores', 'Hidróxidos e Bases', 'Sais', 'Orgânicos']);
+    const [form, setForm] = useState({ nome: '', categoria: '', localizacao: '', quantidade_estoque: '', unidade_medida: 'und' });
     
-    // Estado para controlar se o campo de texto para nova categoria deve aparecer
+    const [categoriasExistentes, setCategoriasExistentes] = useState(['Ácidos', 'Indicadores', 'Hidróxidos e Bases', 'Sais', 'Orgânicos']);
+    const [localizacoesExistentes, setLocalizacoesExistentes] = useState(['Armário 1', 'Armário 2', 'Bancada', 'Geladeira']);
+    
     const [isNovaCategoria, setIsNovaCategoria] = useState(false);
+    const [isNovaLocalizacao, setIsNovaLocalizacao] = useState(false);
 
     useEffect(() => {
       axios.get(`${API_URL}/insumos`).then(res => {
         const cats = [...new Set([...categoriasExistentes, ...res.data.map(i => i.categoria)])];
+        const locs = [...new Set([...localizacoesExistentes, ...res.data.map(i => i.localizacao).filter(Boolean)])];
+        
         setCategoriasExistentes(cats);
+        setLocalizacoesExistentes(locs);
       });
 
       if (insumoParaEditar) {
         setForm({
           nome: insumoParaEditar.nome,
           categoria: insumoParaEditar.categoria,
+          localizacao: insumoParaEditar.localizacao || '',
           quantidade_estoque: insumoParaEditar.quantidade_estoque,
           unidade_medida: insumoParaEditar.unidade_medida || 'und'
         });
         setIsNovaCategoria(false);
+        setIsNovaLocalizacao(false);
       }
     }, [insumoParaEditar]);
 
     const salvarInsumo = async (e) => {
       e.preventDefault();
 
-      if (!form.categoria || form.categoria.trim() === '') {
-        return alert('Por favor, defina uma categoria válida.');
-      }
+      if (!form.categoria || form.categoria.trim() === '') return alert('Por favor, defina uma categoria válida.');
+      if (!form.localizacao || form.localizacao.trim() === '') return alert('Por favor, defina a localização.');
 
       const dadosInsumo = { ...form, quantidade_estoque: parseInt(form.quantidade_estoque, 10), usuario_responsavel: usuarioLogado.nome };
 
@@ -166,8 +177,9 @@ function App() {
         } else {
           await axios.post(`${API_URL}/insumos`, dadosInsumo);
           alert('Novo insumo adicionado ao acervo!');
-          setForm({ nome: '', categoria: categoriasExistentes[0] || 'Ácidos', quantidade_estoque: '', unidade_medida: 'und' });
+          setForm({ nome: '', categoria: categoriasExistentes[0] || 'Ácidos', localizacao: localizacoesExistentes[0] || 'Armário 1', quantidade_estoque: '', unidade_medida: 'und' });
           setIsNovaCategoria(false);
+          setIsNovaLocalizacao(false);
         }
       } catch (error) {
         alert('Erro ao salvar insumo.');
@@ -184,47 +196,46 @@ function App() {
               <input type="text" value={form.nome} onChange={(e) => setForm({...form, nome: e.target.value})} required />
             </div>
 
-            <div className="form-group">
-              <label>Categoria:</label>
-              {!isNovaCategoria ? (
-                <select 
-                  value={form.categoria} 
-                  onChange={(e) => {
-                    if (e.target.value === 'NOVA') {
-                      setIsNovaCategoria(true);
-                      setForm({ ...form, categoria: '' });
-                    } else {
-                      setForm({ ...form, categoria: e.target.value });
-                    }
-                  }} 
-                  required
-                >
-                  <option value="" disabled>Selecione...</option>
-                  {categoriasExistentes.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                  <option value="NOVA">➕ Criar Nova Categoria...</option>
-                </select>
-              ) : (
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <input 
-                    type="text" 
-                    value={form.categoria} 
-                    onChange={(e) => setForm({ ...form, categoria: e.target.value })} 
-                    placeholder="Digite a nova categoria" 
-                    required 
-                    autoFocus
-                  />
-                  <button 
-                    type="button" 
-                    style={{ padding: '0 15px', backgroundColor: '#666', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-                    onClick={() => {
-                      setIsNovaCategoria(false);
-                      setForm({ ...form, categoria: categoriasExistentes[0] || 'Ácidos' });
-                    }}
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              )}
+            <div style={{ display: 'flex', gap: '20px' }}>
+              {/* CAMPO CATEGORIA */}
+              <div className="form-group" style={{ flex: 1 }}>
+                <label>Categoria:</label>
+                {!isNovaCategoria ? (
+                  <select value={form.categoria} onChange={(e) => {
+                      if (e.target.value === 'NOVA') { setIsNovaCategoria(true); setForm({ ...form, categoria: '' }); }
+                      else { setForm({ ...form, categoria: e.target.value }); }
+                    }} required>
+                    <option value="" disabled>Selecione...</option>
+                    {categoriasExistentes.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                    <option value="NOVA">➕ Criar Nova...</option>
+                  </select>
+                ) : (
+                  <div style={{ display: 'flex', gap: '5px' }}>
+                    <input type="text" value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} placeholder="Nova categoria" required autoFocus />
+                    <button type="button" style={{ padding: '0 10px', backgroundColor: '#666', color: 'white', border: 'none', borderRadius: '5px' }} onClick={() => { setIsNovaCategoria(false); setForm({ ...form, categoria: categoriasExistentes[0] || 'Ácidos' }); }}>X</button>
+                  </div>
+                )}
+              </div>
+
+              {/* CAMPO LOCALIZAÇÃO */}
+              <div className="form-group" style={{ flex: 1 }}>
+                <label>Localização (Onde está guardado?):</label>
+                {!isNovaLocalizacao ? (
+                  <select value={form.localizacao} onChange={(e) => {
+                      if (e.target.value === 'NOVA') { setIsNovaLocalizacao(true); setForm({ ...form, localizacao: '' }); }
+                      else { setForm({ ...form, localizacao: e.target.value }); }
+                    }} required>
+                    <option value="" disabled>Selecione...</option>
+                    {localizacoesExistentes.map(loc => <option key={loc} value={loc}>{loc}</option>)}
+                    <option value="NOVA">➕ Adicionar Local...</option>
+                  </select>
+                ) : (
+                  <div style={{ display: 'flex', gap: '5px' }}>
+                    <input type="text" value={form.localizacao} onChange={(e) => setForm({ ...form, localizacao: e.target.value })} placeholder="Ex: Prateleira 3" required autoFocus />
+                    <button type="button" style={{ padding: '0 10px', backgroundColor: '#666', color: 'white', border: 'none', borderRadius: '5px' }} onClick={() => { setIsNovaLocalizacao(false); setForm({ ...form, localizacao: localizacoesExistentes[0] || 'Armário 1' }); }}>X</button>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div style={{ display: 'flex', gap: '20px' }}>
@@ -282,13 +293,14 @@ function App() {
 
     return (
       <div className="page-container">
-        <div className="card" style={{ maxWidth: '900px' }}>
+        <div className="card" style={{ maxWidth: '1000px' }}>
           <h2>Acervo do Laboratório</h2>
           <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
             <thead>
               <tr style={{ backgroundColor: '#000080', color: 'white', textAlign: 'left' }}>
                 <th style={{ padding: '10px' }}>Insumo</th>
                 <th style={{ padding: '10px' }}>Categoria</th>
+                <th style={{ padding: '10px' }}>Localização</th>
                 <th style={{ padding: '10px' }}>Estoque Atual</th>
                 {usuarioLogado.cargo === 'Admin' && <th style={{ padding: '10px', textAlign: 'center' }}>Ações</th>}
               </tr>
@@ -298,6 +310,7 @@ function App() {
                 <tr key={item.id} style={{ borderBottom: '1px solid #ddd' }}>
                   <td style={{ padding: '10px' }}>{item.nome}</td>
                   <td style={{ padding: '10px' }}>{item.categoria}</td>
+                  <td style={{ padding: '10px' }}>{item.localizacao}</td>
                   <td style={{ padding: '10px' }}>{item.quantidade_estoque} {item.unidade_medida}</td>
                   {usuarioLogado.cargo === 'Admin' && (
                     <td style={{ padding: '10px', textAlign: 'center' }}>
