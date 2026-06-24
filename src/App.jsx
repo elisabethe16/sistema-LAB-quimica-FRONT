@@ -63,12 +63,20 @@ function App() {
   // ==================== TELA 2: REGISTRAR SAÍDA ====================
   const TelaSaidaInsumo = () => {
     const [listaInsumos, setListaInsumos] = useState([]);
-    const [form, setForm] = useState({ usuario: '', insumo: '', finalidade: '', quantidade: '' });
+    const [listaUsuarios, setListaUsuarios] = useState([]);
+    
+    // O usuário logado já vem como padrão para agilizar
+    const [form, setForm] = useState({ usuario: usuarioLogado.nome, insumo: '', finalidade: '', quantidade: '' });
 
     useEffect(() => {
       axios.get(`${API_URL}/insumos`).then(res => {
         setListaInsumos(res.data);
         if (res.data.length > 0) setForm(f => ({...f, insumo: res.data[0].nome}));
+      });
+      
+      // Busca todos os usuários cadastrados para o campo de seleção
+      axios.get(`${API_URL}/usuarios`).then(res => {
+        setListaUsuarios(res.data);
       });
     }, []);
 
@@ -77,7 +85,7 @@ function App() {
       try {
         await axios.post(`${API_URL}/registrar-saida`, { ...form, quantidade: parseInt(form.quantidade, 10), usuario_responsavel: usuarioLogado.nome });
         alert('Saída registrada com abatimento no estoque!');
-        setForm({ usuario: '', insumo: listaInsumos[0]?.nome || '', finalidade: '', quantidade: '' });
+        setForm({ usuario: usuarioLogado.nome, insumo: listaInsumos[0]?.nome || '', finalidade: '', quantidade: '' });
       } catch (error) {
         alert(error.response?.data?.error || 'Erro ao registrar saída.');
       }
@@ -88,10 +96,17 @@ function App() {
         <div className="card">
           <h2>Registrar Saída de Insumo</h2>
           <form onSubmit={registrarSaida}>
+            
+            {/* Campo de Usuário atualizado para selecionar usuários cadastrados */}
             <div className="form-group">
-              <label>Aluno/Professor:</label>
-              <input type="text" value={form.usuario} onChange={(e) => setForm({...form, usuario: e.target.value})} required />
+              <label>Quem está retirando o insumo?</label>
+              <select value={form.usuario} onChange={(e) => setForm({...form, usuario: e.target.value})} required>
+                {listaUsuarios.map(u => (
+                  <option key={u.id} value={u.nome}>{u.nome} ({u.cargo})</option>
+                ))}
+              </select>
             </div>
+
             <div className="form-group">
               <label>Insumo:</label>
               <select value={form.insumo} onChange={(e) => setForm({...form, insumo: e.target.value})} required>
@@ -115,10 +130,8 @@ function App() {
 
   // ==================== TELA 3: CADASTRAR / EDITAR INSUMO ====================
   const TelaCadastroInsumo = ({ insumoParaEditar, fecharEdicao }) => {
-    const [form, setForm] = useState({ nome: '', categoria: 'Ácidos', quantidade_estoque: '', unidade_medida: 'und' });
+    const [form, setForm] = useState({ nome: '', categoria: '', quantidade_estoque: '', unidade_medida: 'und' });
     const [categoriasExistentes, setCategoriasExistentes] = useState(['Ácidos', 'Indicadores', 'Hidróxidos e Bases', 'Sais', 'Orgânicos']);
-    const [criarNovaCat, setCriarNovaCat] = useState(false);
-    const [novaCategoriaText, setNovaCategoriaText] = useState('');
 
     useEffect(() => {
       axios.get(`${API_URL}/insumos`).then(res => {
@@ -138,11 +151,8 @@ function App() {
 
     const salvarInsumo = async (e) => {
       e.preventDefault();
-      const categoriaFinal = criarNovaCat ? novaCategoriaText : form.categoria;
 
-      if (!categoriaFinal) return alert('Por favor, defina a categoria.');
-
-      const dadosInsumo = { ...form, categoria: categoriaFinal, quantidade_estoque: parseInt(form.quantidade_estoque, 10), usuario_responsavel: usuarioLogado.nome };
+      const dadosInsumo = { ...form, quantidade_estoque: parseInt(form.quantidade_estoque, 10), usuario_responsavel: usuarioLogado.nome };
 
       try {
         if (insumoParaEditar) {
@@ -152,9 +162,7 @@ function App() {
         } else {
           await axios.post(`${API_URL}/insumos`, dadosInsumo);
           alert('Novo insumo adicionado ao acervo!');
-          setForm({ nome: '', categoria: 'Ácidos', quantidade_estoque: '', unidade_medida: 'und' });
-          setCriarNovaCat(false);
-          setNovaCategoriaText('');
+          setForm({ nome: '', categoria: '', quantidade_estoque: '', unidade_medida: 'und' });
         }
       } catch (error) {
         alert('Erro ao salvar insumo.');
@@ -171,21 +179,19 @@ function App() {
               <input type="text" value={form.nome} onChange={(e) => setForm({...form, nome: e.target.value})} required />
             </div>
 
+            {/* Campo de Categoria atualizado com Datalist */}
             <div className="form-group">
               <label>Categoria:</label>
-              {!criarNovaCat ? (
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <select value={form.categoria} onChange={(e) => setForm({...form, categoria: e.target.value})}>
-                    {categoriasExistentes.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                  </select>
-                  <button type="button" style={{ marginTop: '8px', padding: '0 10px', fontSize: '12px' }} onClick={() => setCriarNovaCat(true)}>➕ Criar Nova</button>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <input type="text" placeholder="Nome da nova categoria" value={novaCategoriaText} onChange={(e) => setNovaCategoriaText(e.target.value)} required />
-                  <button type="button" style={{ marginTop: '8px', padding: '0 10px', fontSize: '12px', backgroundColor: '#555' }} onClick={() => setCriarNovaCat(false)}>Selecionar Existente</button>
-                </div>
-              )}
+              <input 
+                list="lista-categorias" 
+                value={form.categoria} 
+                onChange={(e) => setForm({...form, categoria: e.target.value})} 
+                placeholder="Selecione na seta ou digite uma nova" 
+                required 
+              />
+              <datalist id="lista-categorias">
+                {categoriasExistentes.map(cat => <option key={cat} value={cat} />)}
+              </datalist>
             </div>
 
             <div style={{ display: 'flex', gap: '20px' }}>
@@ -214,7 +220,7 @@ function App() {
     );
   };
 
-  // ==================== TELA 4: ACERVO (LISTAR, EDITAR E EXCLUIR ITENS) ====================
+  // ==================== TELA 4: ACERVO ====================
   const TelaAcervo = () => {
     const [insumos, setInsumos] = useState([]);
     const [insumoSelecionado, setInsumoSelecionado] = useState(null);
@@ -323,7 +329,7 @@ function App() {
     );
   };
 
-  // ==================== TELA 6: GERENCIAR USUÁRIOS (LISTAR, ATUALIZAR, EXCLUIR) ====================
+  // ==================== TELA 6: GERENCIAR USUÁRIOS ====================
   const TelaGerenciarUsuarios = () => {
     const [usuarios, setUsuarios] = useState([]);
     const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
