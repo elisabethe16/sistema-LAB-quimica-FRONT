@@ -37,3 +37,32 @@ body { background-color: #f4f7f6; color: #333; }
 .login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #e9ecef; }
 .login-card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 400px; }
 .login-card img { height: 80px; margin-bottom: 20px; }
+
+/* Container fixo no canto da tela */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* O alerta em si */
+.notification {
+    padding: 15px 25px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    animation: slideIn 0.3s ease-out;
+}
+
+.success { background-color: #28a745; }
+.error { background-color: #dc3545; }
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
