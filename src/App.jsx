@@ -211,7 +211,6 @@ function App() {
                       if (e.target.value === 'NOVA') { setIsNovaLocalizacao(true); setForm({ ...form, localizacao: '' }); }
                       else { setForm({ ...form, localizacao: e.target.value }); }
                     }} required>
-                    <option value="" disabled>Selecione...</option>
                     {localizacoesExistentes.map(loc => <option key={loc} value={loc}>{loc}</option>)}
                     <option value="NOVA">➕ Adicionar Local...</option>
                   </select>
@@ -231,7 +230,7 @@ function App() {
               </div>
               <div className="form-group" style={{ flex: 1 }}>
                 <label>Unidade:</label>
-                <select value={form.unidade_medida} onChange={(e) => setForm({...form, Birth: e.target.value})}>
+                <select value={form.unidade_medida} onChange={(e) => setForm({...form, unidade_medida: e.target.value})}>
                   <option value="und">und</option><option value="g">g</option><option value="mg">mg</option><option value="kg">kg</option><option value="L">L</option><option value="ml">ml</option>
                 </select>
               </div>
@@ -336,12 +335,11 @@ function App() {
             <div className="form-group">
               <label>Cargo:</label>
               <select value={form.cargo} onChange={(e) => setForm({...form, cargo: e.target.value})}>
-                {/* Professores criam: Aluno, Professor e Coordenador */}
+                {/* CORREÇÃO AQUI: Professor agora pode selecionar APENAS Aluno e Professor */}
                 {usuarioLogado.cargo === 'Professor' ? (
                   <>
                     <option value="Aluno">Aluno</option>
                     <option value="Professor">Professor</option>
-                    <option value="Coordenador">Coordenador</option>
                   </>
                 ) : (
                   <>
@@ -449,7 +447,6 @@ function App() {
     );
   };
 
-  // Bloqueio extra via Router lógico para impedir acessos diretos não autorizados
   const renderizarTela = () => {
     switch(telaAtual) {
       case 'inicio': return <TelaInicio />;
@@ -479,7 +476,6 @@ function App() {
         <h3>Menu do Sistema</h3>
         <button className={telaAtual === 'inicio' ? 'active' : ''} onClick={() => setTelaAtual('inicio')}>🏠 Início</button>
         
-        {/* Aluno não vê a tela de saídas */}
         {usuarioLogado.cargo !== 'Aluno' && (
           <button className={telaAtual === 'saida' ? 'active' : ''} onClick={() => setTelaAtual('saida')}>🧪 Saída de Insumo</button>
         )}
@@ -490,7 +486,6 @@ function App() {
           <button className={telaAtual === 'cadInsumo' ? 'active' : ''} onClick={() => setTelaAtual('cadInsumo')}>➕ Cadastrar Insumo</button>
         )}
 
-        {/* Professores ganham acesso para registrar novos usuários */}
         {usuarioLogado.cargo !== 'Aluno' && (
           <button className={telaAtual === 'cadUsuario' ? 'active' : ''} onClick={() => setTelaAtual('cadUsuario')}>👤 Cadastrar Usuário</button>
         )}
