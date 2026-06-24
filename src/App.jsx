@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios from 'ajax';
 import './App.css';
 
 const API_URL = 'https://sistema-lab-quimica-back.onrender.com';
@@ -58,7 +58,6 @@ function App() {
       <h2 style={{fontSize: '32px', color: '#000080'}}>Bem-vindo(a) ao Controle de Insumos</h2>
       <p style={{fontSize: '18px'}}>Usuário logado: <strong>{usuarioLogado.nome}</strong> ({usuarioLogado.cargo})</p>
       
-      {/* Assinatura corrigida com 'D' maiúsculo */}
       <div style={{marginTop: 'auto', paddingBottom: '20px', color: '#666', fontSize: '14px', fontWeight: 'bold'}}>
         Desenvolvido por: Everson Andrade e Maria Elisabethe Almeida
       </div>
@@ -69,21 +68,18 @@ function App() {
   const TelaSaidaInsumo = () => {
     const [listaInsumos, setListaInsumos] = useState([]);
     const [listaUsuarios, setListaUsuarios] = useState([]);
-    
-    const [form, setForm] = useState({ usuario: usuarioLogado.nome, insumo: '', finalidade: '', quantity: '' });
+    const [form, setForm] = useState({ usuario: usuarioLogado.nome, insumo: '', finalidade: '', quantidade: '' });
 
     useEffect(() => {
       axios.get(`${API_URL}/insumos`).then(res => {
-        // Ordena os insumos em ordem alfabética pelo nome
-        const insumosOrdenados = res.data.sort((a, b) => a.nome.localeCompare(b.nome));
-        setListaInsumos(insumosOrdenados);
-        if (insumosOrdenados.length > 0) setForm(f => ({...f, insumo: insumosOrdenados[0].nome}));
+        const ordenados = res.data.sort((a, b) => a.nome.localeCompare(b.nome));
+        setListaInsumos(ordenados);
+        if (ordenados.length > 0) setForm(f => ({...f, insumo: ordenados[0].nome}));
       });
       
       axios.get(`${API_URL}/usuarios`).then(res => {
-        // Ordena os usuários em ordem alfabética pelo nome
-        const usuariosOrdenados = res.data.sort((a, b) => a.nome.localeCompare(b.nome));
-        setListaUsuarios(usuariosOrdenados);
+        const ordenados = res.data.sort((a, b) => a.nome.localeCompare(b.nome));
+        setListaUsuarios(ordenados);
       });
     }, []);
 
@@ -106,12 +102,9 @@ function App() {
             <div className="form-group">
               <label>Quem está retirando o insumo?</label>
               <select value={form.usuario} onChange={(e) => setForm({...form, usuario: e.target.value})} required>
-                {listaUsuarios.map(u => (
-                  <option key={u.id} value={u.nome}>{u.nome} ({u.cargo})</option>
-                ))}
+                {listaUsuarios.map(u => <option key={u.id} value={u.nome}>{u.nome} ({u.cargo})</option>)}
               </select>
             </div>
-
             <div className="form-group">
               <label>Insumo:</label>
               <select value={form.insumo} onChange={(e) => setForm({...form, insumo: e.target.value})} required>
@@ -136,7 +129,6 @@ function App() {
   // ==================== TELA 3: CADASTRAR / EDITAR INSUMO ====================
   const TelaCadastroInsumo = ({ insumoParaEditar, fecharEdicao }) => {
     const [form, setForm] = useState({ nome: '', categoria: 'Ácidos', localizacao: 'Armário 1', quantidade_estoque: '', unidade_medida: 'und' });
-    
     const [categoriasExistentes, setCategoriasExistentes] = useState(['Ácidos', 'Indicadores', 'Hidróxidos e Bases', 'Sais', 'Orgânicos'].sort((a,b) => a.localeCompare(b)));
     const [localizacoesExistentes, setLocalizacoesExistentes] = useState(['Armário 1', 'Armário 2', 'Bancada', 'Geladeira'].sort((a,b) => a.localeCompare(b)));
     
@@ -145,22 +137,14 @@ function App() {
 
     useEffect(() => {
       axios.get(`${API_URL}/insumos`).then(res => {
-        // Junta e ordena em ordem alfabética as categorias e localizações vindas do banco
         const cats = [...new Set([...categoriasExistentes, ...res.data.map(i => i.categoria)])].sort((a, b) => a.localeCompare(b));
         const locs = [...new Set([...localizacoesExistentes, ...res.data.map(i => i.localizacao).filter(Boolean)])].sort((a, b) => a.localeCompare(b));
-        
         setCategoriasExistentes(cats);
         setLocalizacoesExistentes(locs);
       });
 
       if (insumoParaEditar) {
-        setForm({
-          nome: insumoParaEditar.nome,
-          categoria: insumoParaEditar.categoria,
-          localizacao: insumoParaEditar.localizacao || '',
-          quantidade_estoque: insumoParaEditar.quantidade_estoque,
-          unidade_medida: insumoParaEditar.unidade_medida || 'und'
-        });
+        setForm({ nome: insumoParaEditar.nome, categoria: insumoParaEditar.categoria, localizacao: insumoParaEditar.localizacao || '', quantidade_estoque: insumoParaEditar.quantidade_estoque, unidade_medida: insumoParaEditar.unidade_medida || 'und' });
         setIsNovaCategoria(false);
         setIsNovaLocalizacao(false);
       }
@@ -168,27 +152,20 @@ function App() {
 
     const salvarInsumo = async (e) => {
       e.preventDefault();
-
-      if (!form.categoria || form.categoria.trim() === '') return alert('Por favor, defina uma categoria válida.');
-      if (!form.localizacao || form.localizacao.trim() === '') return alert('Por favor, defina a localização.');
-
       const dadosInsumo = { ...form, quantidade_estoque: parseInt(form.quantidade_estoque, 10), usuario_responsavel: usuarioLogado.nome };
-
       try {
         if (insumoParaEditar) {
           await axios.put(`${API_URL}/insumos/${insumoParaEditar.id}`, dadosInsumo);
-          alert('Insumo updated com sucesso!');
+          alert('Insumo atualizado!');
           fecharEdicao();
         } else {
           await axios.post(`${API_URL}/insumos`, dadosInsumo);
-          alert('Novo insumo adicionado ao acervo!');
+          alert('Insumo adicionado!');
           setForm({ nome: '', categoria: categoriasExistentes[0] || 'Ácidos', localizacao: localizacoesExistentes[0] || 'Armário 1', quantidade_estoque: '', unidade_medida: 'und' });
           setIsNovaCategoria(false);
           setIsNovaLocalizacao(false);
         }
-      } catch (error) {
-        alert('Erro ao salvar insumo.');
-      }
+      } catch (error) { alert('Erro ao salvar insumo.'); }
     };
 
     return (
@@ -202,7 +179,6 @@ function App() {
             </div>
 
             <div style={{ display: 'flex', gap: '20px' }}>
-              {/* CAMPO CATEGORIA */}
               <div className="form-group" style={{ flex: 1 }}>
                 <label>Categoria:</label>
                 {!isNovaCategoria ? (
@@ -210,19 +186,17 @@ function App() {
                       if (e.target.value === 'NOVA') { setIsNovaCategoria(true); setForm({ ...form, categoria: '' }); }
                       else { setForm({ ...form, categoria: e.target.value }); }
                     }} required>
-                    <option value="" disabled>Selecione...</option>
                     {categoriasExistentes.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                     <option value="NOVA">➕ Criar Nova...</option>
                   </select>
                 ) : (
                   <div style={{ display: 'flex', gap: '5px' }}>
-                    <input type="text" value={form.categoria} onChange={(e) => setForm({ ...form, ...form, categoria: e.target.value })} placeholder="Nova categoria" required autoFocus />
-                    <button type="button" style={{ padding: '0 10px', backgroundColor: '#666', color: 'white', border: 'none', borderRadius: '5px' }} onClick={() => { setIsNovaCategoria(false); setForm({ ...form, categoria: categoriasExistentes[0] || 'Ácidos' }); }}>X</button>
+                    <input type="text" value={form.categoria} onChange={(e) => setForm({ ...form, categoria: e.target.value })} placeholder="Nova categoria" required autoFocus />
+                    <button type="button" style={{ padding: '0 10px', backgroundColor: '#666', color: 'white', border: 'none' }} onClick={() => { setIsNovaCategoria(false); setForm({ ...form, categoria: categoriasExistentes[0] }); }}>X</button>
                   </div>
                 )}
               </div>
 
-              {/* CAMPO LOCALIZAÇÃO ENCURTADO */}
               <div className="form-group" style={{ flex: 1 }}>
                 <label>Localização:</label>
                 {!isNovaLocalizacao ? (
@@ -230,14 +204,13 @@ function App() {
                       if (e.target.value === 'NOVA') { setIsNovaLocalizacao(true); setForm({ ...form, localizacao: '' }); }
                       else { setForm({ ...form, localizacao: e.target.value }); }
                     }} required>
-                    <option value="" disabled>Selecione...</option>
                     {localizacoesExistentes.map(loc => <option key={loc} value={loc}>{loc}</option>)}
                     <option value="NOVA">➕ Adicionar Local...</option>
                   </select>
                 ) : (
                   <div style={{ display: 'flex', gap: '5px' }}>
                     <input type="text" value={form.localizacao} onChange={(e) => setForm({ ...form, localizacao: e.target.value })} placeholder="Ex: Prateleira 3" required autoFocus />
-                    <button type="button" style={{ padding: '0 10px', backgroundColor: '#666', color: 'white', border: 'none', borderRadius: '5px' }} onClick={() => { setIsNovaLocalizacao(false); setForm({ ...form, localizacao: localizacoesExistentes[0] || 'Armário 1' }); }}>X</button>
+                    <button type="button" style={{ padding: '0 10px', backgroundColor: '#666', color: 'white', border: 'none' }} onClick={() => { setIsNovaLocalizacao(false); setForm({ ...form, localizacao: localizacoesExistentes[0] }); }}>X</button>
                   </div>
                 )}
               </div>
@@ -251,16 +224,10 @@ function App() {
               <div className="form-group" style={{ flex: 1 }}>
                 <label>Unidade:</label>
                 <select value={form.unidade_medida} onChange={(e) => setForm({...form, unidade_medida: e.target.value})}>
-                  <option value="und">und</option>
-                  <option value="g">g</option>
-                  <option value="mg">mg</option>
-                  <option value="kg">kg</option>
-                  <option value="L">L</option>
-                  <option value="ml">ml</option>
+                  <option value="und">und</option><option value="g">g</option><option value="mg">mg</option><option value="kg">kg</option><option value="L">L</option><option value="ml">ml</option>
                 </select>
               </div>
             </div>
-
             <button type="submit" className="btn-submit">{insumoParaEditar ? 'Salvar Alterações' : 'Salvar Insumo'}</button>
             {insumoParaEditar && <button type="button" className="btn-submit" style={{ backgroundColor: '#666', marginTop: '10px' }} onClick={fecharEdicao}>Cancelar</button>}
           </form>
@@ -275,25 +242,10 @@ function App() {
     const [insumoSelecionado, setInsumoSelecionado] = useState(null);
 
     const carregarAcervo = () => {
-      axios.get(`${API_URL}/insumos`).then(res => {
-        const ordenados = res.data.sort((a, b) => a.nome.localeCompare(b.nome));
-        setInsumos(ordenados);
-      });
+      axios.get(`${API_URL}/insumos`).then(res => setInsumos(res.data.sort((a, b) => a.nome.localeCompare(b.nome))));
     };
 
     useEffect(() => { carregarAcervo(); }, []);
-
-    const excluirInsumo = async (id) => {
-      if (window.confirm('Tem certeza que deseja deletar este insumo do acervo?')) {
-        try {
-          await axios.delete(`${API_URL}/insumos/${id}?usuario_responsavel=${usuarioLogado.nome}`);
-          alert('Insumo removido com sucesso!');
-          carregarAcervo();
-        } catch (error) {
-          alert('Erro ao excluir insumo.');
-        }
-      }
-    };
 
     if (insumoSelecionado) {
       return <TelaCadastroInsumo insumoParaEditar={insumoSelecionado} fecharEdicao={() => { setInsumoSelecionado(null); carregarAcervo(); }} />;
@@ -310,7 +262,7 @@ function App() {
                 <th style={{ padding: '10px' }}>Categoria</th>
                 <th style={{ padding: '10px' }}>Localização</th>
                 <th style={{ padding: '10px' }}>Estoque Atual</th>
-                {usuarioLogado.cargo === 'Admin' && <th style={{ padding: '10px', textAlign: 'center' }}>Ações</th>}
+                {(usuarioLogado.cargo === 'Admin' || usuarioLogado.cargo === 'Coordenador') && <th style={{ padding: '10px', textAlign: 'center' }}>Ações</th>}
               </tr>
             </thead>
             <tbody>
@@ -320,10 +272,15 @@ function App() {
                   <td style={{ padding: '10px' }}>{item.categoria}</td>
                   <td style={{ padding: '10px' }}>{item.localizacao}</td>
                   <td style={{ padding: '10px' }}>{item.quantidade_estoque} {item.unidade_medida}</td>
-                  {usuarioLogado.cargo === 'Admin' && (
+                  {(usuarioLogado.cargo === 'Admin' || usuarioLogado.cargo === 'Coordenador') && (
                     <td style={{ padding: '10px', textAlign: 'center' }}>
-                      <button style={{ padding: '5px 10px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '4px', marginRight: '5px', cursor: 'pointer' }} onClick={() => setInsumoSelecionado(item)}>✏️ Editar</button>
-                      <button style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }} onClick={() => excluirInsumo(item.id)}>🗑️ Excluir</button>
+                      <button style={{ padding: '5px 10px', backgroundColor: '#ffc107', border: 'none', borderRadius: '4px', marginRight: '5px' }} onClick={() => setInsumoSelecionado(item)}>✏️ </button>
+                      <button style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }} onClick={async () => {
+                        if (window.confirm('Excluir este insumo?')) {
+                          await axios.delete(`${API_URL}/insumos/${item.id}?usuario_responsavel=${usuarioLogado.nome}`);
+                          carregarAcervo();
+                        }
+                      }}>🗑️</button>
                     </td>
                   )}
                 </tr>
@@ -351,13 +308,11 @@ function App() {
           alert('Usuário atualizado!');
           fecharEdicao();
         } else {
-          await axios.post(`${API_URL}/usuarios`, { ...form, usuario_responsavel: usuarioLogado.nome });
+          await axios.post(`${API_URL}/usuarios`, { ...form, usuario_responsavel: usuarioLogado.nome, cargo_responsavel: usuarioLogado.cargo });
           alert('Usuário cadastrado!');
           setForm({ nome: '', login: '', senha: '', cargo: 'Aluno', matricula: '' });
         }
-      } catch (error) {
-        alert(error.response?.data?.error || 'Erro ao salvar usuário.');
-      }
+      } catch (error) { alert(error.response?.data?.error || 'Erro ao salvar usuário.'); }
     };
 
     return (
@@ -372,7 +327,19 @@ function App() {
             <div className="form-group">
               <label>Cargo:</label>
               <select value={form.cargo} onChange={(e) => setForm({...form, cargo: e.target.value})}>
-                <option>Aluno</option><option>Professor</option><option>Admin</option>
+                {usuarioLogado.cargo === 'Professor' ? (
+                  <>
+                    <option value="Aluno">Aluno</option>
+                    <option value="Professor">Professor</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="Aluno">Aluno</option>
+                    <option value="Professor">Professor</option>
+                    <option value="Coordenador">Coordenador</option>
+                    <option value="Admin">Admin</option>
+                  </>
+                )}
               </select>
             </div>
             <button type="submit" className="btn-submit">{usuarioParaEditar ? 'Salvar Alterações' : 'Salvar Usuário'}</button>
@@ -389,25 +356,10 @@ function App() {
     const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
 
     const carregarUsuarios = () => {
-      axios.get(`${API_URL}/usuarios`).then(res => {
-        const ordenados = res.data.sort((a, b) => a.nome.localeCompare(b.nome));
-        setUsuarios(ordenados);
-      });
+      axios.get(`${API_URL}/usuarios`).then(res => setUsuarios(res.data.sort((a, b) => a.nome.localeCompare(b.nome))));
     };
 
     useEffect(() => { carregarUsuarios(); }, []);
-
-    const excluirUsuario = async (id) => {
-      if (window.confirm('Excluir este usuário permanentemente?')) {
-        try {
-          await axios.delete(`${API_URL}/usuarios/${id}?usuario_responsavel=${usuarioLogado.nome}`);
-          alert('Usuário removido!');
-          carregarUsuarios();
-        } catch (error) {
-          alert('Erro ao remover usuário.');
-        }
-      }
-    };
 
     if (usuarioSelecionado) {
       return <TelaCadastroUsuario usuarioParaEditar={usuarioSelecionado} fecharEdicao={() => { setUsuarioSelecionado(null); carregarUsuarios(); }} />;
@@ -416,7 +368,7 @@ function App() {
     return (
       <div className="page-container">
         <div className="card" style={{ maxWidth: '900px' }}>
-          <h2>Usuários Cadastrados</h2>
+          <h2>Usuarios Cadastrados</h2>
           <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
             <thead>
               <tr style={{ backgroundColor: '#000080', color: 'white', textAlign: 'left' }}>
@@ -435,8 +387,13 @@ function App() {
                   <td style={{ padding: '10px' }}>{user.login}</td>
                   <td style={{ padding: '10px' }}>{user.cargo}</td>
                   <td style={{ padding: '10px', textAlign: 'center' }}>
-                    <button style={{ padding: '5px 10px', backgroundColor: '#ffc107', color: 'black', border: 'none', borderRadius: '4px', marginRight: '5px', cursor: 'pointer' }} onClick={() => setUsuarioSelecionado(user)}>✏️ Editar</button>
-                    <button style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }} onClick={() => excluirUsuario(user.id)}>🗑️ Excluir</button>
+                    <button style={{ padding: '5px 10px', backgroundColor: '#ffc107', border: 'none', borderRadius: '4px', marginRight: '5px' }} onClick={() => setUsuarioSelecionado(user)}>✏️ </button>
+                    <button style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }} onClick={async () => {
+                      if (window.confirm('Remover este usuário?')) {
+                        await axios.delete(`${API_URL}/usuarios/${user.id}?usuario_responsavel=${usuarioLogado.nome}`);
+                        carregarUsuarios();
+                      }
+                    }}>🗑️</button>
                   </td>
                 </tr>
               ))}
@@ -499,13 +456,19 @@ function App() {
       <div className="sidebar">
         <h3>Menu do Sistema</h3>
         <button className={telaAtual === 'inicio' ? 'active' : ''} onClick={() => setTelaAtual('inicio')}>🏠 Início</button>
-        <button className={telaAtual === 'saida' ? 'active' : ''} onClick={() => setTelaAtual('saida')}>🧪 Saída de Insumo</button>
+        {usuarioLogado.cargo !== 'Aluno' && <button className={telaAtual === 'saida' ? 'active' : ''} onClick={() => setTelaAtual('saida')}>🧪 Saída de Insumo</button>}
         <button className={telaAtual === 'acervo' ? 'active' : ''} onClick={() => setTelaAtual('acervo')}>📦 Acervo</button>
         
-        {usuarioLogado.cargo === 'Admin' && (
+        {(usuarioLogado.cargo === 'Admin' || usuarioLogado.cargo === 'Coordenador') && (
+          <button className={telaAtual === 'cadInsumo' ? 'active' : ''} onClick={() => setTelaAtual('cadInsumo')}>➕ Cadastrar Insumo</button>
+        )}
+
+        {usuarioLogado.cargo !== 'Aluno' && (
+          <button className={telaAtual === 'cadUsuario' ? 'active' : ''} onClick={() => setTelaAtual('cadUsuario')}>👤 Criar Usuário</button>
+        )}
+
+        {(usuarioLogado.cargo === 'Admin' || usuarioLogado.cargo === 'Coordenador') && (
           <>
-            <button className={telaAtual === 'cadInsumo' ? 'active' : ''} onClick={() => setTelaAtual('cadInsumo')}>➕ Cadastrar Insumo</button>
-            <button className={telaAtual === 'cadUsuario' ? 'active' : ''} onClick={() => setTelaAtual('cadUsuario')}>👤 Criar Usuário</button>
             <button className={telaAtual === 'gerenUsuarios' ? 'active' : ''} onClick={() => setTelaAtual('gerenUsuarios')}>👥 Gerenciar Usuários</button>
             <button className={telaAtual === 'historico' ? 'active' : ''} onClick={() => setTelaAtual('historico')}>📜 Histórico Geral</button>
           </>
