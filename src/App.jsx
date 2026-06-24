@@ -65,7 +65,6 @@ function App() {
     const [listaInsumos, setListaInsumos] = useState([]);
     const [listaUsuarios, setListaUsuarios] = useState([]);
     
-    // O usuário logado já vem como padrão para agilizar
     const [form, setForm] = useState({ usuario: usuarioLogado.nome, insumo: '', finalidade: '', quantidade: '' });
 
     useEffect(() => {
@@ -74,7 +73,6 @@ function App() {
         if (res.data.length > 0) setForm(f => ({...f, insumo: res.data[0].nome}));
       });
       
-      // Busca todos os usuários cadastrados para o campo de seleção
       axios.get(`${API_URL}/usuarios`).then(res => {
         setListaUsuarios(res.data);
       });
@@ -96,8 +94,6 @@ function App() {
         <div className="card">
           <h2>Registrar Saída de Insumo</h2>
           <form onSubmit={registrarSaida}>
-            
-            {/* Campo de Usuário atualizado para selecionar usuários cadastrados */}
             <div className="form-group">
               <label>Quem está retirando o insumo?</label>
               <select value={form.usuario} onChange={(e) => setForm({...form, usuario: e.target.value})} required>
@@ -130,8 +126,11 @@ function App() {
 
   // ==================== TELA 3: CADASTRAR / EDITAR INSUMO ====================
   const TelaCadastroInsumo = ({ insumoParaEditar, fecharEdicao }) => {
-    const [form, setForm] = useState({ nome: '', categoria: '', quantidade_estoque: '', unidade_medida: 'und' });
+    const [form, setForm] = useState({ nome: '', categoria: 'Ácidos', quantidade_estoque: '', unidade_medida: 'und' });
     const [categoriasExistentes, setCategoriasExistentes] = useState(['Ácidos', 'Indicadores', 'Hidróxidos e Bases', 'Sais', 'Orgânicos']);
+    
+    // Estado para controlar se o campo de texto para nova categoria deve aparecer
+    const [isNovaCategoria, setIsNovaCategoria] = useState(false);
 
     useEffect(() => {
       axios.get(`${API_URL}/insumos`).then(res => {
@@ -146,11 +145,16 @@ function App() {
           quantidade_estoque: insumoParaEditar.quantidade_estoque,
           unidade_medida: insumoParaEditar.unidade_medida || 'und'
         });
+        setIsNovaCategoria(false);
       }
     }, [insumoParaEditar]);
 
     const salvarInsumo = async (e) => {
       e.preventDefault();
+
+      if (!form.categoria || form.categoria.trim() === '') {
+        return alert('Por favor, defina uma categoria válida.');
+      }
 
       const dadosInsumo = { ...form, quantidade_estoque: parseInt(form.quantidade_estoque, 10), usuario_responsavel: usuarioLogado.nome };
 
@@ -162,7 +166,8 @@ function App() {
         } else {
           await axios.post(`${API_URL}/insumos`, dadosInsumo);
           alert('Novo insumo adicionado ao acervo!');
-          setForm({ nome: '', categoria: '', quantidade_estoque: '', unidade_medida: 'und' });
+          setForm({ nome: '', categoria: categoriasExistentes[0] || 'Ácidos', quantidade_estoque: '', unidade_medida: 'und' });
+          setIsNovaCategoria(false);
         }
       } catch (error) {
         alert('Erro ao salvar insumo.');
@@ -179,19 +184,47 @@ function App() {
               <input type="text" value={form.nome} onChange={(e) => setForm({...form, nome: e.target.value})} required />
             </div>
 
-            {/* Campo de Categoria atualizado com Datalist */}
             <div className="form-group">
               <label>Categoria:</label>
-              <input 
-                list="lista-categorias" 
-                value={form.categoria} 
-                onChange={(e) => setForm({...form, categoria: e.target.value})} 
-                placeholder="Selecione na seta ou digite uma nova" 
-                required 
-              />
-              <datalist id="lista-categorias">
-                {categoriasExistentes.map(cat => <option key={cat} value={cat} />)}
-              </datalist>
+              {!isNovaCategoria ? (
+                <select 
+                  value={form.categoria} 
+                  onChange={(e) => {
+                    if (e.target.value === 'NOVA') {
+                      setIsNovaCategoria(true);
+                      setForm({ ...form, categoria: '' });
+                    } else {
+                      setForm({ ...form, categoria: e.target.value });
+                    }
+                  }} 
+                  required
+                >
+                  <option value="" disabled>Selecione...</option>
+                  {categoriasExistentes.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                  <option value="NOVA">➕ Criar Nova Categoria...</option>
+                </select>
+              ) : (
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <input 
+                    type="text" 
+                    value={form.categoria} 
+                    onChange={(e) => setForm({ ...form, categoria: e.target.value })} 
+                    placeholder="Digite a nova categoria" 
+                    required 
+                    autoFocus
+                  />
+                  <button 
+                    type="button" 
+                    style={{ padding: '0 15px', backgroundColor: '#666', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                    onClick={() => {
+                      setIsNovaCategoria(false);
+                      setForm({ ...form, categoria: categoriasExistentes[0] || 'Ácidos' });
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'flex', gap: '20px' }}>
