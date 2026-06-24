@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'ajax';
+import axios from 'axios';
 import './App.css';
 
 const API_URL = 'https://sistema-lab-quimica-back.onrender.com';
@@ -68,18 +68,19 @@ function App() {
   const TelaSaidaInsumo = () => {
     const [listaInsumos, setListaInsumos] = useState([]);
     const [listaUsuarios, setListaUsuarios] = useState([]);
+    
     const [form, setForm] = useState({ usuario: usuarioLogado.nome, insumo: '', finalidade: '', quantidade: '' });
 
     useEffect(() => {
       axios.get(`${API_URL}/insumos`).then(res => {
-        const ordenados = res.data.sort((a, b) => a.nome.localeCompare(b.nome));
-        setListaInsumos(ordenados);
-        if (ordenados.length > 0) setForm(f => ({...f, insumo: ordenados[0].nome}));
+        const insumosOrdenados = res.data.sort((a, b) => a.nome.localeCompare(b.nome));
+        setListaInsumos(insumosOrdenados);
+        if (insumosOrdenados.length > 0) setForm(f => ({...f, insumo: insumosOrdenados[0].nome}));
       });
       
       axios.get(`${API_URL}/usuarios`).then(res => {
-        const ordenados = res.data.sort((a, b) => a.nome.localeCompare(b.nome));
-        setListaUsuarios(ordenados);
+        const usuariosOrdenados = res.data.sort((a, b) => a.nome.localeCompare(b.nome));
+        setListaUsuarios(usuariosOrdenados);
       });
     }, []);
 
@@ -102,9 +103,12 @@ function App() {
             <div className="form-group">
               <label>Quem está retirando o insumo?</label>
               <select value={form.usuario} onChange={(e) => setForm({...form, usuario: e.target.value})} required>
-                {listaUsuarios.map(u => <option key={u.id} value={u.nome}>{u.nome} ({u.cargo})</option>)}
+                {listaUsuarios.map(u => (
+                  <option key={u.id} value={u.nome}>{u.nome} ({u.cargo})</option>
+                ))}
               </select>
             </div>
+
             <div className="form-group">
               <label>Insumo:</label>
               <select value={form.insumo} onChange={(e) => setForm({...form, insumo: e.target.value})} required>
@@ -129,6 +133,7 @@ function App() {
   // ==================== TELA 3: CADASTRAR / EDITAR INSUMO ====================
   const TelaCadastroInsumo = ({ insumoParaEditar, fecharEdicao }) => {
     const [form, setForm] = useState({ nome: '', categoria: 'Ácidos', localizacao: 'Armário 1', quantidade_estoque: '', unidade_medida: 'und' });
+    
     const [categoriasExistentes, setCategoriasExistentes] = useState(['Ácidos', 'Indicadores', 'Hidróxidos e Bases', 'Sais', 'Orgânicos'].sort((a,b) => a.localeCompare(b)));
     const [localizacoesExistentes, setLocalizacoesExistentes] = useState(['Armário 1', 'Armário 2', 'Bancada', 'Geladeira'].sort((a,b) => a.localeCompare(b)));
     
@@ -139,6 +144,7 @@ function App() {
       axios.get(`${API_URL}/insumos`).then(res => {
         const cats = [...new Set([...categoriasExistentes, ...res.data.map(i => i.categoria)])].sort((a, b) => a.localeCompare(b));
         const locs = [...new Set([...localizacoesExistentes, ...res.data.map(i => i.localizacao).filter(Boolean)])].sort((a, b) => a.localeCompare(b));
+        
         setCategoriasExistentes(cats);
         setLocalizacoesExistentes(locs);
       });
@@ -156,12 +162,12 @@ function App() {
       try {
         if (insumoParaEditar) {
           await axios.put(`${API_URL}/insumos/${insumoParaEditar.id}`, dadosInsumo);
-          alert('Insumo atualizado!');
+          alert('Insumo atualizado com sucesso!');
           fecharEdicao();
         } else {
           await axios.post(`${API_URL}/insumos`, dadosInsumo);
-          alert('Insumo adicionado!');
-          setForm({ nome: '', categoria: categoriasExistentes[0] || 'Ácidos', localizacao: localizacoesExistentes[0] || 'Armário 1', quantidade_estoque: '', unidade_medida: 'und' });
+          alert('Novo insumo adicionado ao acervo!');
+          setForm({ nome: '', categoria: categoriasExistentes[0], localizacao: localizacoesExistentes[0], quantidade_estoque: '', unidade_medida: 'und' });
           setIsNovaCategoria(false);
           setIsNovaLocalizacao(false);
         }
@@ -186,6 +192,7 @@ function App() {
                       if (e.target.value === 'NOVA') { setIsNovaCategoria(true); setForm({ ...form, categoria: '' }); }
                       else { setForm({ ...form, categoria: e.target.value }); }
                     }} required>
+                    <option value="" disabled>Selecione...</option>
                     {categoriasExistentes.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                     <option value="NOVA">➕ Criar Nova...</option>
                   </select>
@@ -204,6 +211,7 @@ function App() {
                       if (e.target.value === 'NOVA') { setIsNovaLocalizacao(true); setForm({ ...form, localizacao: '' }); }
                       else { setForm({ ...form, localizacao: e.target.value }); }
                     }} required>
+                    <option value="" disabled>Selecione...</option>
                     {localizacoesExistentes.map(loc => <option key={loc} value={loc}>{loc}</option>)}
                     <option value="NOVA">➕ Adicionar Local...</option>
                   </select>
@@ -223,11 +231,12 @@ function App() {
               </div>
               <div className="form-group" style={{ flex: 1 }}>
                 <label>Unidade:</label>
-                <select value={form.unidade_medida} onChange={(e) => setForm({...form, unidade_medida: e.target.value})}>
+                <select value={form.unidade_medida} onChange={(e) => setForm({...form, Birth: e.target.value})}>
                   <option value="und">und</option><option value="g">g</option><option value="mg">mg</option><option value="kg">kg</option><option value="L">L</option><option value="ml">ml</option>
                 </select>
               </div>
             </div>
+
             <button type="submit" className="btn-submit">{insumoParaEditar ? 'Salvar Alterações' : 'Salvar Insumo'}</button>
             {insumoParaEditar && <button type="button" className="btn-submit" style={{ backgroundColor: '#666', marginTop: '10px' }} onClick={fecharEdicao}>Cancelar</button>}
           </form>
@@ -274,7 +283,7 @@ function App() {
                   <td style={{ padding: '10px' }}>{item.quantidade_estoque} {item.unidade_medida}</td>
                   {(usuarioLogado.cargo === 'Admin' || usuarioLogado.cargo === 'Coordenador') && (
                     <td style={{ padding: '10px', textAlign: 'center' }}>
-                      <button style={{ padding: '5px 10px', backgroundColor: '#ffc107', border: 'none', borderRadius: '4px', marginRight: '5px' }} onClick={() => setInsumoSelecionado(item)}>✏️ </button>
+                      <button style={{ padding: '5px 10px', backgroundColor: '#ffc107', border: 'none', borderRadius: '4px', marginRight: '5px' }} onClick={() => setInsumoSelecionado(item)}>✏️</button>
                       <button style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }} onClick={async () => {
                         if (window.confirm('Excluir este insumo?')) {
                           await axios.delete(`${API_URL}/insumos/${item.id}?usuario_responsavel=${usuarioLogado.nome}`);
@@ -309,7 +318,7 @@ function App() {
           fecharEdicao();
         } else {
           await axios.post(`${API_URL}/usuarios`, { ...form, usuario_responsavel: usuarioLogado.nome, cargo_responsavel: usuarioLogado.cargo });
-          alert('Usuário cadastrado!');
+          alert('Usuário cadastrado com sucesso!');
           setForm({ nome: '', login: '', senha: '', cargo: 'Aluno', matricula: '' });
         }
       } catch (error) { alert(error.response?.data?.error || 'Erro ao salvar usuário.'); }
@@ -327,10 +336,12 @@ function App() {
             <div className="form-group">
               <label>Cargo:</label>
               <select value={form.cargo} onChange={(e) => setForm({...form, cargo: e.target.value})}>
+                {/* Professores criam: Aluno, Professor e Coordenador */}
                 {usuarioLogado.cargo === 'Professor' ? (
                   <>
                     <option value="Aluno">Aluno</option>
                     <option value="Professor">Professor</option>
+                    <option value="Coordenador">Coordenador</option>
                   </>
                 ) : (
                   <>
@@ -368,7 +379,7 @@ function App() {
     return (
       <div className="page-container">
         <div className="card" style={{ maxWidth: '900px' }}>
-          <h2>Usuarios Cadastrados</h2>
+          <h2>Usuários Cadastrados</h2>
           <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
             <thead>
               <tr style={{ backgroundColor: '#000080', color: 'white', textAlign: 'left' }}>
@@ -387,7 +398,7 @@ function App() {
                   <td style={{ padding: '10px' }}>{user.login}</td>
                   <td style={{ padding: '10px' }}>{user.cargo}</td>
                   <td style={{ padding: '10px', textAlign: 'center' }}>
-                    <button style={{ padding: '5px 10px', backgroundColor: '#ffc107', border: 'none', borderRadius: '4px', marginRight: '5px' }} onClick={() => setUsuarioSelecionado(user)}>✏️ </button>
+                    <button style={{ padding: '5px 10px', backgroundColor: '#ffc107', border: 'none', borderRadius: '4px', marginRight: '5px' }} onClick={() => setUsuarioSelecionado(user)}>✏️</button>
                     <button style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }} onClick={async () => {
                       if (window.confirm('Remover este usuário?')) {
                         await axios.delete(`${API_URL}/usuarios/${user.id}?usuario_responsavel=${usuarioLogado.nome}`);
@@ -438,15 +449,26 @@ function App() {
     );
   };
 
+  // Bloqueio extra via Router lógico para impedir acessos diretos não autorizados
   const renderizarTela = () => {
     switch(telaAtual) {
       case 'inicio': return <TelaInicio />;
-      case 'saida': return <TelaSaidaInsumo />;
-      case 'cadInsumo': return <TelaCadastroInsumo />;
+      case 'saida': 
+        if (usuarioLogado.cargo === 'Aluno') return <TelaInicio />;
+        return <TelaSaidaInsumo />;
+      case 'cadInsumo': 
+        if (usuarioLogado.cargo === 'Aluno' || usuarioLogado.cargo === 'Professor') return <TelaInicio />;
+        return <TelaCadastroInsumo />;
       case 'acervo': return <TelaAcervo />;
-      case 'cadUsuario': return <TelaCadastroUsuario />;
-      case 'gerenUsuarios': return <TelaGerenciarUsuarios />;
-      case 'historico': return <TelaHistorico />;
+      case 'cadUsuario': 
+        if (usuarioLogado.cargo === 'Aluno') return <TelaInicio />;
+        return <TelaCadastroUsuario />;
+      case 'gerenUsuarios': 
+        if (usuarioLogado.cargo === 'Aluno' || usuarioLogado.cargo === 'Professor') return <TelaInicio />;
+        return <TelaGerenciarUsuarios />;
+      case 'historico': 
+        if (usuarioLogado.cargo === 'Aluno' || usuarioLogado.cargo === 'Professor') return <TelaInicio />;
+        return <TelaHistorico />;
       default: return <TelaInicio />;
     }
   };
@@ -456,15 +478,21 @@ function App() {
       <div className="sidebar">
         <h3>Menu do Sistema</h3>
         <button className={telaAtual === 'inicio' ? 'active' : ''} onClick={() => setTelaAtual('inicio')}>🏠 Início</button>
-        {usuarioLogado.cargo !== 'Aluno' && <button className={telaAtual === 'saida' ? 'active' : ''} onClick={() => setTelaAtual('saida')}>🧪 Saída de Insumo</button>}
+        
+        {/* Aluno não vê a tela de saídas */}
+        {usuarioLogado.cargo !== 'Aluno' && (
+          <button className={telaAtual === 'saida' ? 'active' : ''} onClick={() => setTelaAtual('saida')}>🧪 Saída de Insumo</button>
+        )}
+        
         <button className={telaAtual === 'acervo' ? 'active' : ''} onClick={() => setTelaAtual('acervo')}>📦 Acervo</button>
         
         {(usuarioLogado.cargo === 'Admin' || usuarioLogado.cargo === 'Coordenador') && (
           <button className={telaAtual === 'cadInsumo' ? 'active' : ''} onClick={() => setTelaAtual('cadInsumo')}>➕ Cadastrar Insumo</button>
         )}
 
+        {/* Professores ganham acesso para registrar novos usuários */}
         {usuarioLogado.cargo !== 'Aluno' && (
-          <button className={telaAtual === 'cadUsuario' ? 'active' : ''} onClick={() => setTelaAtual('cadUsuario')}>👤 Criar Usuário</button>
+          <button className={telaAtual === 'cadUsuario' ? 'active' : ''} onClick={() => setTelaAtual('cadUsuario')}>👤 Cadastrar Usuário</button>
         )}
 
         {(usuarioLogado.cargo === 'Admin' || usuarioLogado.cargo === 'Coordenador') && (
