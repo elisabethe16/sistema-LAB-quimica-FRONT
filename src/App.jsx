@@ -21,7 +21,7 @@ const TelaInicio = ({ usuarioLogado }) => (
 );
 
 // ==================== TELA 2: REGISTRAR SAÍDA ====================
-const TelaSaidaInsumo = ({ usuarioLogado }) => {
+const TelaSaidaInsumo = ({ usuarioLogado, mostrarNotificacao }) => {
   const [listaInsumos, setListaInsumos] = useState([]);
   const [listaUsuarios, setListaUsuarios] = useState([]);
   
@@ -44,10 +44,10 @@ const TelaSaidaInsumo = ({ usuarioLogado }) => {
     e.preventDefault();
     try {
       await axios.post(`${API_URL}/registrar-saida`, { ...form, quantidade: parseInt(form.quantidade, 10), usuario_responsavel: usuarioLogado.nome });
-      alert('Saída registrada com abatimento no estoque!');
+      mostrarNotificacao('Saída registrada com abatimento no estoque!', 'success');
       setForm({ usuario: usuarioLogado.nome, insumo: listaInsumos[0]?.nome || '', finalidade: '', quantidade: '' });
     } catch (error) {
-      alert(error.response?.data?.error || 'Erro ao registrar saída.');
+      mostrarNotificacao(error.response?.data?.error || 'Erro ao registrar saída.', 'error');
     }
   };
 
@@ -87,7 +87,7 @@ const TelaSaidaInsumo = ({ usuarioLogado }) => {
 };
 
 // ==================== TELA 3: CADASTRAR / EDITAR INSUMO ====================
-const TelaCadastroInsumo = ({ insumoParaEditar, fecharEdicao, usuarioLogado }) => {
+const TelaCadastroInsumo = ({ insumoParaEditar, fecharEdicao, usuarioLogado, mostrarNotificacao }) => {
   const [form, setForm] = useState({ nome: '', categoria: 'Ácidos', localizacao: 'Armário 1', quantidade_estoque: '', unidade_medida: 'und' });
   
   const [categoriasExistentes, setCategoriasExistentes] = useState(['Ácidos', 'Indicadores', 'Hidróxidos e Bases', 'Sais', 'Orgânicos'].sort((a,b) => a.localeCompare(b)));
@@ -118,16 +118,18 @@ const TelaCadastroInsumo = ({ insumoParaEditar, fecharEdicao, usuarioLogado }) =
     try {
       if (insumoParaEditar) {
         await axios.put(`${API_URL}/insumos/${insumoParaEditar.id}`, dadosInsumo);
-        alert('Insumo atualizado com sucesso!');
+        mostrarNotificacao('Insumo atualizado com sucesso!', 'success');
         fecharEdicao();
       } else {
         await axios.post(`${API_URL}/insumos`, dadosInsumo);
-        alert('Novo insumo adicionado ao acervo!');
+        mostrarNotificacao('Novo insumo adicionado ao acervo!', 'success');
         setForm({ nome: '', categoria: categoriasExistentes[0], localizacao: localizacoesExistentes[0], quantidade_estoque: '', unidade_medida: 'und' });
         setIsNovaCategoria(false);
         setIsNovaLocalizacao(false);
       }
-    } catch (error) { alert('Erro ao salvar insumo.'); }
+    } catch (error) { 
+      mostrarNotificacao('Erro ao salvar insumo.', 'error'); 
+    }
   };
 
   return (
@@ -201,7 +203,7 @@ const TelaCadastroInsumo = ({ insumoParaEditar, fecharEdicao, usuarioLogado }) =
 };
 
 // ==================== TELA 4: ACERVO ====================
-const TelaAcervo = ({ usuarioLogado }) => {
+const TelaAcervo = ({ usuarioLogado, mostrarNotificacao }) => {
   const [insumos, setInsumos] = useState([]);
   const [insumoSelecionado, setInsumoSelecionado] = useState(null);
 
@@ -212,7 +214,7 @@ const TelaAcervo = ({ usuarioLogado }) => {
   useEffect(() => { carregarAcervo(); }, []);
 
   if (insumoSelecionado) {
-    return <TelaCadastroInsumo insumoParaEditar={insumoSelecionado} fecharEdicao={() => { setInsumoSelecionado(null); carregarAcervo(); }} usuarioLogado={usuarioLogado} />;
+    return <TelaCadastroInsumo insumoParaEditar={insumoSelecionado} fecharEdicao={() => { setInsumoSelecionado(null); carregarAcervo(); }} usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao} />;
   }
 
   return (
@@ -241,8 +243,13 @@ const TelaAcervo = ({ usuarioLogado }) => {
                     <button style={{ padding: '5px 10px', backgroundColor: '#ffc107', border: 'none', borderRadius: '4px', marginRight: '5px' }} onClick={() => setInsumoSelecionado(item)}>✏️</button>
                     <button style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }} onClick={async () => {
                       if (window.confirm('Excluir este insumo?')) {
-                        await axios.delete(`${API_URL}/insumos/${item.id}?usuario_responsavel=${usuarioLogado.nome}`);
-                        carregarAcervo();
+                        try {
+                          await axios.delete(`${API_URL}/insumos/${item.id}?usuario_responsavel=${usuarioLogado.nome}`);
+                          mostrarNotificacao('Insumo excluído com sucesso!', 'success');
+                          carregarAcervo();
+                        } catch (error) {
+                          mostrarNotificacao('Erro ao excluir insumo.', 'error');
+                        }
                       }
                     }}>🗑️</button>
                   </td>
@@ -257,7 +264,7 @@ const TelaAcervo = ({ usuarioLogado }) => {
 };
 
 // ==================== TELA 5: CADASTRAR / EDITAR USUÁRIO ====================
-const TelaCadastroUsuario = ({ usuarioParaEditar, fecharEdicao, usuarioLogado }) => {
+const TelaCadastroUsuario = ({ usuarioParaEditar, fecharEdicao, usuarioLogado, mostrarNotificacao }) => {
   const [form, setForm] = useState({ nome: '', login: '', senha: '', cargo: 'Aluno', matricula: '' });
 
   useEffect(() => {
@@ -269,14 +276,16 @@ const TelaCadastroUsuario = ({ usuarioParaEditar, fecharEdicao, usuarioLogado })
     try {
       if (usuarioParaEditar) {
         await axios.put(`${API_URL}/usuarios/${usuarioParaEditar.id}`, { ...form, usuario_responsavel: usuarioLogado.nome });
-        alert('Usuário atualizado!');
+        mostrarNotificacao('Usuário atualizado com sucesso!', 'success');
         fecharEdicao();
       } else {
         await axios.post(`${API_URL}/usuarios`, { ...form, usuario_responsavel: usuarioLogado.nome, cargo_responsavel: usuarioLogado.cargo });
-        alert('Usuário cadastrado com sucesso!');
+        mostrarNotificacao('Usuário cadastrado com sucesso!', 'success');
         setForm({ nome: '', login: '', senha: '', cargo: 'Aluno', matricula: '' });
       }
-    } catch (error) { alert(error.response?.data?.error || 'Erro ao salvar usuário.'); }
+    } catch (error) { 
+      mostrarNotificacao(error.response?.data?.error || 'Erro ao salvar usuário.', 'error'); 
+    }
   };
 
   return (
@@ -315,7 +324,7 @@ const TelaCadastroUsuario = ({ usuarioParaEditar, fecharEdicao, usuarioLogado })
 };
 
 // ==================== TELA 6: GERENCIAR USUÁRIOS ====================
-const TelaGerenciarUsuarios = ({ usuarioLogado }) => {
+const TelaGerenciarUsuarios = ({ usuarioLogado, mostrarNotificacao }) => {
   const [usuarios, setUsuarios] = useState([]);
   const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
 
@@ -326,7 +335,7 @@ const TelaGerenciarUsuarios = ({ usuarioLogado }) => {
   useEffect(() => { carregarUsuarios(); }, []);
 
   if (usuarioSelecionado) {
-    return <TelaCadastroUsuario usuarioParaEditar={usuarioSelecionado} fecharEdicao={() => { setUsuarioSelecionado(null); carregarUsuarios(); }} usuarioLogado={usuarioLogado} />;
+    return <TelaCadastroUsuario usuarioParaEditar={usuarioSelecionado} fecharEdicao={() => { setUsuarioSelecionado(null); carregarUsuarios(); }} usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao} />;
   }
 
   return (
@@ -354,8 +363,13 @@ const TelaGerenciarUsuarios = ({ usuarioLogado }) => {
                   <button style={{ padding: '5px 10px', backgroundColor: '#ffc107', border: 'none', borderRadius: '4px', marginRight: '5px' }} onClick={() => setUsuarioSelecionado(user)}>✏️</button>
                   <button style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }} onClick={async () => {
                     if (window.confirm('Remover este usuário?')) {
-                      await axios.delete(`${API_URL}/usuarios/${user.id}?usuario_responsavel=${usuarioLogado.nome}`);
-                      carregarUsuarios();
+                      try {
+                        await axios.delete(`${API_URL}/usuarios/${user.id}?usuario_responsavel=${usuarioLogado.nome}`);
+                        mostrarNotificacao('Usuário removido com sucesso!', 'success');
+                        carregarUsuarios();
+                      } catch (error) {
+                        mostrarNotificacao('Erro ao remover usuário.', 'error');
+                      }
                     }
                   }}>🗑️</button>
                 </td>
@@ -409,6 +423,20 @@ function App() {
 
   const [loginUser, setLoginUser] = useState('');
   const [loginSenha, setLoginSenha] = useState('');
+  
+  // ----- SISTEMA DE NOTIFICAÇÕES -----
+  const [notificacoes, setNotificacoes] = useState([]);
+
+  const mostrarNotificacao = (mensagem, tipo = 'success') => {
+    const id = Date.now();
+    setNotificacoes(prev => [...prev, { id, mensagem, tipo }]);
+    
+    // Remove a notificação após 3 segundos
+    setTimeout(() => {
+      setNotificacoes(prev => prev.filter(notificacao => notificacao.id !== id));
+    }, 3000);
+  };
+  // -----------------------------------
 
   const fazerLogin = async (e) => {
     e.preventDefault();
@@ -416,8 +444,9 @@ function App() {
       const resposta = await axios.post(`${API_URL}/login`, { login: loginUser, senha: loginSenha });
       setUsuarioLogado(resposta.data);
       setTelaAtual('inicio');
+      mostrarNotificacao(`Bem-vindo, ${resposta.data.nome}!`, 'success');
     } catch (error) {
-      alert('Usuário ou senha incorretos!');
+      mostrarNotificacao('Usuário ou senha incorretos!', 'error');
     }
   };
 
@@ -430,6 +459,15 @@ function App() {
   if (!usuarioLogado) {
     return (
       <div className="login-screen">
+        {/* Renderiza as notificações na tela de login também */}
+        <div className="notification-container">
+          {notificacoes.map(notif => (
+            <div key={notif.id} className={`notification ${notif.tipo}`}>
+              {notif.mensagem}
+            </div>
+          ))}
+        </div>
+
         <div className="login-card">
           <img src="/logo-eng-quimica.png" alt="Logo Engenharia" />
           <h2>Acesso ao Sistema</h2>
@@ -452,17 +490,17 @@ function App() {
       case 'inicio': return <TelaInicio usuarioLogado={usuarioLogado} />;
       case 'saida': 
         if (usuarioLogado.cargo === 'Aluno') return <TelaInicio usuarioLogado={usuarioLogado} />;
-        return <TelaSaidaInsumo usuarioLogado={usuarioLogado} />;
+        return <TelaSaidaInsumo usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao} />;
       case 'cadInsumo': 
         if (usuarioLogado.cargo === 'Aluno' || usuarioLogado.cargo === 'Professor') return <TelaInicio usuarioLogado={usuarioLogado} />;
-        return <TelaCadastroInsumo usuarioLogado={usuarioLogado} />;
-      case 'acervo': return <TelaAcervo usuarioLogado={usuarioLogado} />;
+        return <TelaCadastroInsumo usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao} />;
+      case 'acervo': return <TelaAcervo usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao} />;
       case 'cadUsuario': 
         if (usuarioLogado.cargo === 'Aluno') return <TelaInicio usuarioLogado={usuarioLogado} />;
-        return <TelaCadastroUsuario usuarioLogado={usuarioLogado} />;
+        return <TelaCadastroUsuario usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao} />;
       case 'gerenUsuarios': 
         if (usuarioLogado.cargo === 'Aluno' || usuarioLogado.cargo === 'Professor') return <TelaInicio usuarioLogado={usuarioLogado} />;
-        return <TelaGerenciarUsuarios usuarioLogado={usuarioLogado} />;
+        return <TelaGerenciarUsuarios usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao} />;
       case 'historico': 
         if (usuarioLogado.cargo === 'Aluno' || usuarioLogado.cargo === 'Professor') return <TelaInicio usuarioLogado={usuarioLogado} />;
         return <TelaHistorico />;
@@ -472,6 +510,15 @@ function App() {
 
   return (
     <div className="app-container">
+      {/* Componente Visual das Notificações */}
+      <div className="notification-container">
+        {notificacoes.map(notif => (
+          <div key={notif.id} className={`notification ${notif.tipo}`}>
+            {notif.mensagem}
+          </div>
+        ))}
+      </div>
+
       <div className="sidebar">
         <h3>Menu do Sistema</h3>
         <button className={telaAtual === 'inicio' ? 'active' : ''} onClick={() => setTelaAtual('inicio')}>🏠 Início</button>
