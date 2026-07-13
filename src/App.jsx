@@ -7,14 +7,14 @@ const API_URL = 'https://sistema-lab-quimica-back.onrender.com';
 // ==================== TELA 1: INÍCIO ====================
 const TelaInicio = ({ usuarioLogado }) => (
   <div className="page-container" style={{flexDirection: 'column', alignItems: 'center', minHeight: 'calc(100vh - 80px)', position: 'relative'}}>
-    <div style={{display: 'flex', gap: '30px', marginBottom: '30px', marginTop: '50px'}}>
-      <img src="/logo-eng-quimica.png" alt="Engenharia Química" style={{height: '120px'}} />
-      <img src="/logo-uabj.png" alt="UABJ" style={{height: '120px'}} />
+    <div className="form-row" style={{justifyContent: 'center', marginBottom: '30px', marginTop: '30px', gap: '20px'}}>
+      <img src="/logo-eng-quimica.png" alt="Engenharia Química" style={{height: '100px', maxWidth: '100%', objectFit: 'contain'}} />
+      <img src="/logo-uabj.png" alt="UABJ" style={{height: '100px', maxWidth: '100%', objectFit: 'contain'}} />
     </div>
-    <h2 style={{fontSize: '32px', color: '#000080'}}>Bem-vindo(a) ao Controle de Insumos</h2>
-    <p style={{fontSize: '18px'}}>Usuário logado: <strong>{usuarioLogado.nome}</strong> ({usuarioLogado.cargo})</p>
+    <h2 style={{fontSize: '28px', color: '#000080', textAlign: 'center'}}>Bem-vindo(a) ao Controle de Insumos</h2>
+    <p style={{fontSize: '16px', textAlign: 'center'}}>Usuário logado: <strong>{usuarioLogado.nome}</strong> ({usuarioLogado.cargo})</p>
     
-    <div style={{marginTop: 'auto', paddingBottom: '20px', color: '#666', fontSize: '14px', fontWeight: 'bold'}}>
+    <div style={{marginTop: 'auto', paddingBottom: '20px', color: '#666', fontSize: '14px', fontWeight: 'bold', textAlign: 'center'}}>
       Desenvolvido por: Everson Andrade e Maria Elisabethe Almeida
     </div>
   </div>
@@ -92,7 +92,7 @@ const TelaCadastroInsumo = ({ insumoParaEditar, fecharEdicao, usuarioLogado, mos
   
   const [categoriasExistentes, setCategoriasExistentes] = useState(['Ácidos', 'Indicadores', 'Hidróxidos e Bases', 'Sais', 'Orgânicos'].sort((a,b) => a.localeCompare(b)));
   const [localizacoesExistentes, setLocalizacoesExistentes] = useState(['Armário 1', 'Armário 2', 'Bancada', 'Geladeira'].sort((a,b) => a.localeCompare(b)));
-  const [nomesExistentes, setNomesExistentes] = useState([]); // Guarda os nomes já cadastrados
+  const [nomesExistentes, setNomesExistentes] = useState([]); 
   
   const [isNovaCategoria, setIsNovaCategoria] = useState(false);
   const [isNovaLocalizacao, setIsNovaLocalizacao] = useState(false);
@@ -105,7 +105,6 @@ const TelaCadastroInsumo = ({ insumoParaEditar, fecharEdicao, usuarioLogado, mos
       setCategoriasExistentes(cats);
       setLocalizacoesExistentes(locs);
       
-      // Mapeia todos os nomes convertidos para minúsculo para a validação
       setNomesExistentes(res.data.map(i => i.nome.trim().toLowerCase()));
     });
 
@@ -119,7 +118,6 @@ const TelaCadastroInsumo = ({ insumoParaEditar, fecharEdicao, usuarioLogado, mos
   const salvarInsumo = async (e) => {
     e.preventDefault();
 
-    // VALIDAÇÃO: Bloqueia cadastro de insumo com nome já existente
     if (!insumoParaEditar && nomesExistentes.includes(form.nome.trim().toLowerCase())) {
       mostrarNotificacao('Este insumo já está cadastrado! Acesse o Acervo para editar a quantidade.', 'error');
       return;
@@ -153,7 +151,7 @@ const TelaCadastroInsumo = ({ insumoParaEditar, fecharEdicao, usuarioLogado, mos
             <input type="text" value={form.nome} onChange={(e) => setForm({...form, nome: e.target.value})} required />
           </div>
 
-          <div style={{ display: 'flex', gap: '20px' }}>
+          <div className="form-row">
             <div className="form-group" style={{ flex: 1 }}>
               <label>Categoria:</label>
               {!isNovaCategoria ? (
@@ -192,7 +190,7 @@ const TelaCadastroInsumo = ({ insumoParaEditar, fecharEdicao, usuarioLogado, mos
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '20px' }}>
+          <div className="form-row">
             <div className="form-group" style={{ flex: 2 }}>
               <label>Quantidade em Estoque:</label>
               <input type="number" value={form.quantidade_estoque} onChange={(e) => setForm({...form, quantidade_estoque: e.target.value})} required />
@@ -218,7 +216,6 @@ const TelaAcervo = ({ usuarioLogado, mostrarNotificacao }) => {
   const [insumos, setInsumos] = useState([]);
   const [insumoSelecionado, setInsumoSelecionado] = useState(null);
   
-  // Estados para pesquisa e filtros
   const [termoPesquisa, setTermoPesquisa] = useState('');
   const [categoriaFiltro, setCategoriaFiltro] = useState('Todas');
 
@@ -228,17 +225,14 @@ const TelaAcervo = ({ usuarioLogado, mostrarNotificacao }) => {
 
   useEffect(() => { carregarAcervo(); }, []);
 
-  // Extrai as categorias únicas disponíveis no acervo atual para o filtro
   const categoriasDisponiveis = ['Todas', ...new Set(insumos.map(i => i.categoria))].sort();
 
-  // Aplica a pesquisa de texto e o filtro de categoria
   const insumosFiltrados = insumos.filter(item => {
     const matchPesquisa = item.nome.toLowerCase().includes(termoPesquisa.toLowerCase());
     const matchCategoria = categoriaFiltro === 'Todas' || item.categoria === categoriaFiltro;
     return matchPesquisa && matchCategoria;
   });
 
-  // Função nativa para gerar relatório em PDF via aba de impressão
   const baixarPDF = () => {
     const janelaImpressao = window.open('', '', 'width=900,height=650');
     
@@ -305,15 +299,14 @@ const TelaAcervo = ({ usuarioLogado, mostrarNotificacao }) => {
   return (
     <div className="page-container">
       <div className="card" style={{ maxWidth: '1000px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <div className="form-row filtros-mobile" style={{ justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <h2 style={{ margin: 0 }}>Acervo do Laboratório</h2>
           <button onClick={baixarPDF} style={{ backgroundColor: '#28a745', color: 'white', padding: '8px 15px', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>
             📄 Baixar PDF
           </button>
         </div>
 
-        {/* Área de Pesquisa e Filtros */}
-        <div style={{ display: 'flex', gap: '15px', marginBottom: '20px', backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '8px' }}>
+        <div className="form-row filtros-mobile" style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
           <div className="form-group" style={{ flex: 2, margin: 0 }}>
             <input 
               type="text" 
@@ -329,49 +322,51 @@ const TelaAcervo = ({ usuarioLogado, mostrarNotificacao }) => {
           </div>
         </div>
 
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#000080', color: 'white', textAlign: 'left' }}>
-              <th style={{ padding: '10px' }}>Insumo</th>
-              <th style={{ padding: '10px' }}>Categoria</th>
-              <th style={{ padding: '10px' }}>Localização</th>
-              <th style={{ padding: '10px' }}>Estoque Atual</th>
-              {(usuarioLogado.cargo === 'Admin' || usuarioLogado.cargo === 'Coordenador') && <th style={{ padding: '10px', textAlign: 'center' }}>Ações</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {insumosFiltrados.length > 0 ? (
-              insumosFiltrados.map((item) => (
-                <tr key={item.id} style={{ borderBottom: '1px solid #ddd' }}>
-                  <td style={{ padding: '10px' }}>{item.nome}</td>
-                  <td style={{ padding: '10px' }}>{item.categoria}</td>
-                  <td style={{ padding: '10px' }}>{item.localizacao}</td>
-                  <td style={{ padding: '10px' }}>{item.quantidade_estoque} {item.unidade_medida}</td>
-                  {(usuarioLogado.cargo === 'Admin' || usuarioLogado.cargo === 'Coordenador') && (
-                    <td style={{ padding: '10px', textAlign: 'center' }}>
-                      <button style={{ padding: '5px 10px', backgroundColor: '#ffc107', border: 'none', borderRadius: '4px', marginRight: '5px' }} onClick={() => setInsumoSelecionado(item)}>✏️</button>
-                      <button style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }} onClick={async () => {
-                        if (window.confirm('Excluir este insumo?')) {
-                          try {
-                            await axios.delete(`${API_URL}/insumos/${item.id}?usuario_responsavel=${usuarioLogado.nome}`);
-                            mostrarNotificacao('Insumo excluído com sucesso!', 'success');
-                            carregarAcervo();
-                          } catch (error) {
-                            mostrarNotificacao('Erro ao excluir insumo.', 'error');
-                          }
-                        }
-                      }}>🗑️</button>
-                    </td>
-                  )}
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" style={{ padding: '20px', textAlign: 'center', color: '#666' }}>Nenhum insumo encontrado com estes filtros.</td>
+        <div className="table-responsive">
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#000080', color: 'white', textAlign: 'left' }}>
+                <th style={{ padding: '10px' }}>Insumo</th>
+                <th style={{ padding: '10px' }}>Categoria</th>
+                <th style={{ padding: '10px' }}>Localização</th>
+                <th style={{ padding: '10px' }}>Estoque Atual</th>
+                {(usuarioLogado.cargo === 'Admin' || usuarioLogado.cargo === 'Coordenador') && <th style={{ padding: '10px', textAlign: 'center' }}>Ações</th>}
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {insumosFiltrados.length > 0 ? (
+                insumosFiltrados.map((item) => (
+                  <tr key={item.id} style={{ borderBottom: '1px solid #ddd' }}>
+                    <td style={{ padding: '10px' }}>{item.nome}</td>
+                    <td style={{ padding: '10px' }}>{item.categoria}</td>
+                    <td style={{ padding: '10px' }}>{item.localizacao}</td>
+                    <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>{item.quantidade_estoque} {item.unidade_medida}</td>
+                    {(usuarioLogado.cargo === 'Admin' || usuarioLogado.cargo === 'Coordenador') && (
+                      <td style={{ padding: '10px', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        <button style={{ padding: '5px 10px', backgroundColor: '#ffc107', border: 'none', borderRadius: '4px', marginRight: '5px' }} onClick={() => setInsumoSelecionado(item)}>✏️</button>
+                        <button style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }} onClick={async () => {
+                          if (window.confirm('Excluir este insumo?')) {
+                            try {
+                              await axios.delete(`${API_URL}/insumos/${item.id}?usuario_responsavel=${usuarioLogado.nome}`);
+                              mostrarNotificacao('Insumo excluído com sucesso!', 'success');
+                              carregarAcervo();
+                            } catch (error) {
+                              mostrarNotificacao('Erro ao excluir insumo.', 'error');
+                            }
+                          }
+                        }}>🗑️</button>
+                      </td>
+                    )}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" style={{ padding: '20px', textAlign: 'center', color: '#666' }}>Nenhum insumo encontrado com estes filtros.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
@@ -456,41 +451,43 @@ const TelaGerenciarUsuarios = ({ usuarioLogado, mostrarNotificacao }) => {
     <div className="page-container">
       <div className="card" style={{ maxWidth: '900px' }}>
         <h2>Usuários Cadastrados</h2>
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#000080', color: 'white', textAlign: 'left' }}>
-              <th style={{ padding: '10px' }}>Nome</th>
-              <th style={{ padding: '10px' }}>Matrícula</th>
-              <th style={{ padding: '10px' }}>Login</th>
-              <th style={{ padding: '10px' }}>Cargo</th>
-              <th style={{ padding: '10px', textAlign: 'center' }}>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {usuarios.map(user => (
-              <tr key={user.id} style={{ borderBottom: '1px solid #ddd' }}>
-                <td style={{ padding: '10px' }}>{user.nome}</td>
-                <td style={{ padding: '10px' }}>{user.matricula || '---'}</td>
-                <td style={{ padding: '10px' }}>{user.login}</td>
-                <td style={{ padding: '10px' }}>{user.cargo}</td>
-                <td style={{ padding: '10px', textAlign: 'center' }}>
-                  <button style={{ padding: '5px 10px', backgroundColor: '#ffc107', border: 'none', borderRadius: '4px', marginRight: '5px' }} onClick={() => setUsuarioSelecionado(user)}>✏️</button>
-                  <button style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }} onClick={async () => {
-                    if (window.confirm('Remover este usuário?')) {
-                      try {
-                        await axios.delete(`${API_URL}/usuarios/${user.id}?usuario_responsavel=${usuarioLogado.nome}`);
-                        mostrarNotificacao('Usuário removido com sucesso!', 'success');
-                        carregarUsuarios();
-                      } catch (error) {
-                        mostrarNotificacao('Erro ao remover usuário.', 'error');
-                      }
-                    }
-                  }}>🗑️</button>
-                </td>
+        <div className="table-responsive">
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', minWidth: '600px' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#000080', color: 'white', textAlign: 'left' }}>
+                <th style={{ padding: '10px' }}>Nome</th>
+                <th style={{ padding: '10px' }}>Matrícula</th>
+                <th style={{ padding: '10px' }}>Login</th>
+                <th style={{ padding: '10px' }}>Cargo</th>
+                <th style={{ padding: '10px', textAlign: 'center' }}>Ações</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {usuarios.map(user => (
+                <tr key={user.id} style={{ borderBottom: '1px solid #ddd' }}>
+                  <td style={{ padding: '10px' }}>{user.nome}</td>
+                  <td style={{ padding: '10px' }}>{user.matricula || '---'}</td>
+                  <td style={{ padding: '10px' }}>{user.login}</td>
+                  <td style={{ padding: '10px' }}>{user.cargo}</td>
+                  <td style={{ padding: '10px', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                    <button style={{ padding: '5px 10px', backgroundColor: '#ffc107', border: 'none', borderRadius: '4px', marginRight: '5px' }} onClick={() => setUsuarioSelecionado(user)}>✏️</button>
+                    <button style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }} onClick={async () => {
+                      if (window.confirm('Remover este usuário?')) {
+                        try {
+                          await axios.delete(`${API_URL}/usuarios/${user.id}?usuario_responsavel=${usuarioLogado.nome}`);
+                          mostrarNotificacao('Usuário removido com sucesso!', 'success');
+                          carregarUsuarios();
+                        } catch (error) {
+                          mostrarNotificacao('Erro ao remover usuário.', 'error');
+                        }
+                      }
+                    }}>🗑️</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
@@ -505,26 +502,28 @@ const TelaHistorico = () => {
     <div className="page-container">
       <div className="card" style={{ maxWidth: '950px' }}>
         <h2>Histórico de Ações</h2>
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', fontSize: '14px' }}>
-          <thead>
-            <tr style={{ backgroundColor: '#000080', color: 'white', textAlign: 'left' }}>
-              <th style={{ padding: '10px' }}>Data/Hora</th>
-              <th style={{ padding: '10px' }}>Ação</th>
-              <th style={{ padding: '10px' }}>Detalhes</th>
-              <th style={{ padding: '10px' }}>Responsável</th>
-            </tr>
-          </thead>
-          <tbody>
-            {historico.map((item) => (
-              <tr key={item.id} style={{ borderBottom: '1px solid #ddd' }}>
-                <td style={{ padding: '10px' }}>{new Date(item.data_registro).toLocaleString('pt-BR')}</td>
-                <td style={{ padding: '10px', fontWeight: 'bold' }}>{item.acao}</td>
-                <td style={{ padding: '10px' }}>{item.detalhes}</td>
-                <td style={{ padding: '10px' }}>{item.usuario_responsavel}</td>
+        <div className="table-responsive">
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', fontSize: '14px', minWidth: '600px' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#000080', color: 'white', textAlign: 'left' }}>
+                <th style={{ padding: '10px' }}>Data/Hora</th>
+                <th style={{ padding: '10px' }}>Ação</th>
+                <th style={{ padding: '10px' }}>Detalhes</th>
+                <th style={{ padding: '10px' }}>Responsável</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {historico.map((item) => (
+                <tr key={item.id} style={{ borderBottom: '1px solid #ddd' }}>
+                  <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>{new Date(item.data_registro).toLocaleString('pt-BR')}</td>
+                  <td style={{ padding: '10px', fontWeight: 'bold' }}>{item.acao}</td>
+                  <td style={{ padding: '10px' }}>{item.detalhes}</td>
+                  <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>{item.usuario_responsavel}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
@@ -538,19 +537,16 @@ function App() {
   const [loginUser, setLoginUser] = useState('');
   const [loginSenha, setLoginSenha] = useState('');
   
-  // ----- SISTEMA DE NOTIFICAÇÕES -----
   const [notificacoes, setNotificacoes] = useState([]);
 
   const mostrarNotificacao = (mensagem, tipo = 'success') => {
     const id = Date.now();
     setNotificacoes(prev => [...prev, { id, mensagem, tipo }]);
     
-    // Remove a notificação após 3 segundos
     setTimeout(() => {
       setNotificacoes(prev => prev.filter(notificacao => notificacao.id !== id));
     }, 3000);
   };
-  // -----------------------------------
 
   const fazerLogin = async (e) => {
     e.preventDefault();
@@ -573,7 +569,6 @@ function App() {
   if (!usuarioLogado) {
     return (
       <div className="login-screen">
-        {/* Renderiza as notificações na tela de login também */}
         <div className="notification-container">
           {notificacoes.map(notif => (
             <div key={notif.id} className={`notification ${notif.tipo}`}>
@@ -624,7 +619,6 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* Componente Visual das Notificações */}
       <div className="notification-container">
         {notificacoes.map(notif => (
           <div key={notif.id} className={`notification ${notif.tipo}`}>
@@ -657,7 +651,7 @@ function App() {
             <button className={telaAtual === 'historico' ? 'active' : ''} onClick={() => setTelaAtual('historico')}>📜 Histórico Geral</button>
           </>
         )}
-        <button className="btn-sair" onClick={fazerLogout}>Sair do Sistema</button>
+        <button className="btn-sair" onClick={fazerLogout}>Sair</button>
       </div>
 
       <div className="main-content">
