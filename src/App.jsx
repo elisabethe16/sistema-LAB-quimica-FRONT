@@ -29,7 +29,7 @@ const TelaDenuncia = () => (
         Encontrou o laboratório desorganizado, materiais fora do lugar ou alguma situação irregular? Faça sua denúncia no formulário abaixo.
       </p>
       
-      <img src="/denuncia.png" alt="QR Code Denúncia" style={{ maxWidth: '200px', margin: '0 auto 20px', display: 'block', border: '1px solid #ccc', borderRadius: '8px', padding: '10px' }} />
+      <img src="/denuncia.jpeg" alt="QR Code Denúncia" style={{ maxWidth: '200px', margin: '0 auto 20px', display: 'block', border: '1px solid #ccc', borderRadius: '8px', padding: '10px' }} />
       
       <a href="https://forms.gle/kFNbrvHsak82pAKfA" target="_blank" rel="noopener noreferrer" className="btn-submit" style={{ display: 'inline-block', textDecoration: 'none', backgroundColor: '#dc3545' }}>
         Abrir Formulário de Denúncia
@@ -47,7 +47,7 @@ const TelaChecklist = () => (
         Área destinada à equipe responsável para preenchimento do relatório de manutenção e organização do laboratório (Padrão 5S).
       </p>
       
-      <img src="/checklist.png" alt="QR Code Checklist" style={{ maxWidth: '200px', margin: '0 auto 20px', display: 'block', border: '1px solid #ccc', borderRadius: '8px', padding: '10px' }} />
+      <img src="/checklist.jpeg" alt="QR Code Checklist" style={{ maxWidth: '200px', margin: '0 auto 20px', display: 'block', border: '1px solid #ccc', borderRadius: '8px', padding: '10px' }} />
       
       <a href="https://forms.gle/GF1pPYNk5V3wSYoG9" target="_blank" rel="noopener noreferrer" className="btn-submit" style={{ display: 'inline-block', textDecoration: 'none', backgroundColor: '#28a745' }}>
         Abrir Formulário de Vistoria
