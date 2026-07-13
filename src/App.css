@@ -6,7 +6,7 @@ body { background-color: #f4f7f6; color: #333; }
 .app-container { display: flex; height: 100vh; overflow: hidden; }
 
 /* Barra Lateral (Sidebar) */
-.sidebar { width: 250px; background-color: #000080; color: white; display: flex; flex-direction: column; padding: 20px 0; }
+.sidebar { width: 250px; background-color: #000080; color: white; display: flex; flex-direction: column; padding: 20px 0; flex-shrink: 0; }
 .sidebar h3 { text-align: center; margin-bottom: 30px; font-size: 20px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 15px;}
 .sidebar button { background: none; border: none; color: white; padding: 15px 20px; text-align: left; width: 100%; font-size: 16px; cursor: pointer; transition: 0.3s; }
 .sidebar button:hover, .sidebar button.active { background-color: #000050; border-left: 4px solid #fff; }
@@ -14,12 +14,12 @@ body { background-color: #f4f7f6; color: #333; }
 .btn-sair:hover { background-color: #600000 !important; }
 
 /* Área de Conteúdo */
-.main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+.main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; width: 100%; }
 
 /* Cabeçalho Fixo */
-.header { background-color: white; height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 10; }
+.header { background-color: white; height: 80px; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 10; flex-shrink: 0; }
 .header img { height: 50px; object-fit: contain; }
-.header h1 { color: #000080; font-size: 24px; }
+.header h1 { color: #000080; font-size: 24px; text-align: center; }
 
 /* Telas e Formulários */
 .page-container { padding: 40px; display: flex; justify-content: center; }
@@ -27,42 +27,104 @@ body { background-color: #f4f7f6; color: #333; }
 .card h2 { color: #000080; margin-bottom: 20px; text-align: center; }
 
 /* Formulários */
-.form-group { margin-bottom: 15px; }
+.form-group { margin-bottom: 15px; width: 100%; }
 .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
 .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; background-color: #fff; color: #333; }
 .btn-submit { width: 100%; padding: 12px; background-color: #000080; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
 .btn-submit:hover { background-color: #000050; }
 
+/* Linhas de formulário lado a lado */
+.form-row { display: flex; gap: 20px; width: 100%; }
+
 /* Tela de Login Especial */
-.login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #e9ecef; }
-.login-card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 400px; }
-.login-card img { height: 80px; margin-bottom: 20px; }
+.login-screen { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #e9ecef; padding: 20px; }
+.login-card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 400px; }
+.login-card img { height: 80px; margin-bottom: 20px; max-width: 100%; object-fit: contain;}
 
-/* Container fixo no canto da tela */
-.notification-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* O alerta em si */
-.notification {
-    padding: 15px 25px;
-    border-radius: 5px;
-    color: white;
-    font-weight: bold;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    animation: slideIn 0.3s ease-out;
-}
-
+/* Container fixo no canto da tela para Notificações */
+.notification-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+.notification { padding: 15px 25px; border-radius: 5px; color: white; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.2); animation: slideIn 0.3s ease-out; word-break: break-word; }
 .success { background-color: #28a745; }
 .error { background-color: #dc3545; }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-@keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+/* Contêiner para permitir scroll horizontal em tabelas */
+.table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; }
+
+
+/* ==================================================== */
+/* RESPONSIVIDADE PARA CELULARES (Telas até 768px)      */
+/* ==================================================== */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column; /* Coloca o menu em cima e o conteúdo embaixo */
+  }
+
+  /* O Sidebar vira um menu rolável no topo */
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    padding: 10px;
+    overflow-x: auto; /* Permite arrastar para o lado */
+    white-space: nowrap; /* Mantém os botões em uma linha */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 20;
+  }
+  
+  .sidebar h3 {
+    display: none; /* Oculta o título do menu para poupar espaço */
+  }
+
+  .sidebar button {
+    width: auto;
+    padding: 10px 15px;
+    font-size: 14px;
+    border-radius: 5px;
+    margin-right: 5px;
+    border-left: none; /* Remove a borda lateral de ativo */
+  }
+
+  .sidebar button.active {
+    background-color: #000050;
+    border-bottom: 3px solid #fff; /* A borda de ativo passa a ser embaixo */
+  }
+
+  .btn-sair {
+    margin-top: 0;
+    margin-left: 10px;
+  }
+
+  /* Ajustes de Cabeçalho e Espaçamentos */
+  .header {
+    padding: 0 15px;
+    height: 70px;
+  }
+  .header h1 { font-size: 18px; }
+  .header img { height: 35px; }
+
+  .page-container { padding: 15px; }
+  .card { padding: 20px; }
+  
+  .login-card { padding: 30px 20px; }
+
+  /* Empilha os formulários que estavam lado a lado */
+  .form-row {
+    flex-direction: column;
+    gap: 0px;
+  }
+
+  /* Ajusta a barra de pesquisa do acervo */
+  .filtros-mobile {
+    flex-direction: column;
+    gap: 10px !important;
+  }
+
+  /* Ajusta as notificações para não saírem da tela */
+  .notification-container {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    align-items: center;
+  }
+  .notification { width: 100%; text-align: center; }
 }
