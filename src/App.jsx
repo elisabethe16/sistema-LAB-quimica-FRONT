@@ -7,13 +7,10 @@ const API_URL = 'https://sistema-lab-quimica-back.onrender.com';
 // ==================== TELA 1: INÍCIO ====================
 const TelaInicio = ({ usuarioLogado }) => (
   <div className="page-container" style={{flexDirection: 'column', alignItems: 'center', minHeight: 'calc(100vh - 80px)', position: 'relative'}}>
-    
-    {/* Contêiner das logos alterado para forçar lado a lado no mobile */}
     <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '20px', marginBottom: '30px', marginTop: '30px', width: '100%' }}>
       <img src="/logo-eng-quimica.png" alt="Engenharia Química" style={{height: '100px', maxWidth: '45%', objectFit: 'contain'}} />
       <img src="/logo-uabj.png" alt="UABJ" style={{height: '100px', maxWidth: '45%', objectFit: 'contain'}} />
     </div>
-
     <h2 style={{fontSize: '28px', color: '#000080', textAlign: 'center'}}>Bem-vindo(a) ao Controle de Insumos</h2>
     <p style={{fontSize: '16px', textAlign: 'center'}}>Usuário logado: <strong>{usuarioLogado.nome}</strong> ({usuarioLogado.cargo})</p>
     
@@ -22,6 +19,43 @@ const TelaInicio = ({ usuarioLogado }) => (
     </div>
   </div>
 );
+
+// ==================== TELA: DENÚNCIA ====================
+const TelaDenuncia = () => (
+  <div className="page-container">
+    <div className="card" style={{ textAlign: 'center' }}>
+      <h2 style={{ color: '#dc3545' }}>⚠️ Reportar Ocorrência</h2>
+      <p style={{ marginBottom: '20px', fontSize: '16px' }}>
+        Encontrou o laboratório desorganizado, materiais fora do lugar ou alguma situação irregular? Faça sua denúncia no formulário abaixo.
+      </p>
+      
+      <img src="/denuncia.png" alt="QR Code Denúncia" style={{ maxWidth: '200px', margin: '0 auto 20px', display: 'block', border: '1px solid #ccc', borderRadius: '8px', padding: '10px' }} />
+      
+      <a href="https://forms.gle/kFNbrvHsak82pAKfA" target="_blank" rel="noopener noreferrer" className="btn-submit" style={{ display: 'inline-block', textDecoration: 'none', backgroundColor: '#dc3545' }}>
+        Abrir Formulário de Denúncia
+      </a>
+    </div>
+  </div>
+);
+
+// ==================== TELA: CHECKLIST 5S ====================
+const TelaChecklist = () => (
+  <div className="page-container">
+    <div className="card" style={{ textAlign: 'center' }}>
+      <h2 style={{ color: '#28a745' }}>✅ Checklist de Vistoria 5S</h2>
+      <p style={{ marginBottom: '20px', fontSize: '16px' }}>
+        Área destinada à equipe responsável para preenchimento do relatório de manutenção e organização do laboratório (Padrão 5S).
+      </p>
+      
+      <img src="/checklist.png" alt="QR Code Checklist" style={{ maxWidth: '200px', margin: '0 auto 20px', display: 'block', border: '1px solid #ccc', borderRadius: '8px', padding: '10px' }} />
+      
+      <a href="https://forms.gle/GF1pPYNk5V3wSYoG9" target="_blank" rel="noopener noreferrer" className="btn-submit" style={{ display: 'inline-block', textDecoration: 'none', backgroundColor: '#28a745' }}>
+        Abrir Formulário de Vistoria
+      </a>
+    </div>
+  </div>
+);
+
 // ==================== TELA 2: REGISTRAR SAÍDA ====================
 const TelaSaidaInsumo = ({ usuarioLogado, mostrarNotificacao }) => {
   const [listaInsumos, setListaInsumos] = useState([]);
@@ -415,10 +449,12 @@ const TelaCadastroUsuario = ({ usuarioParaEditar, fecharEdicao, usuarioLogado, m
                 <>
                   <option value="Aluno">Aluno</option>
                   <option value="Professor">Professor</option>
+                  <option value="Monitor 5S">Monitor 5S</option>
                 </>
               ) : (
                 <>
                   <option value="Aluno">Aluno</option>
+                  <option value="Monitor 5S">Monitor 5S</option>
                   <option value="Professor">Professor</option>
                   <option value="Coordenador">Coordenador</option>
                   <option value="Admin">Admin</option>
@@ -599,22 +635,35 @@ function App() {
   const renderizarTela = () => {
     switch(telaAtual) {
       case 'inicio': return <TelaInicio usuarioLogado={usuarioLogado} />;
+      
+      case 'denuncia': return <TelaDenuncia />;
+      
+      case 'checklist':
+        if (usuarioLogado.cargo === 'Aluno') return <TelaInicio usuarioLogado={usuarioLogado} />;
+        return <TelaChecklist />;
+        
       case 'saida': 
-        if (usuarioLogado.cargo === 'Aluno') return <TelaInicio usuarioLogado={usuarioLogado} />;
+        if (['Aluno', 'Monitor 5S'].includes(usuarioLogado.cargo)) return <TelaInicio usuarioLogado={usuarioLogado} />;
         return <TelaSaidaInsumo usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao} />;
+        
       case 'cadInsumo': 
-        if (usuarioLogado.cargo === 'Aluno' || usuarioLogado.cargo === 'Professor') return <TelaInicio usuarioLogado={usuarioLogado} />;
+        if (['Aluno', 'Monitor 5S', 'Professor'].includes(usuarioLogado.cargo)) return <TelaInicio usuarioLogado={usuarioLogado} />;
         return <TelaCadastroInsumo usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao} />;
+        
       case 'acervo': return <TelaAcervo usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao} />;
+      
       case 'cadUsuario': 
-        if (usuarioLogado.cargo === 'Aluno') return <TelaInicio usuarioLogado={usuarioLogado} />;
+        if (['Aluno', 'Monitor 5S'].includes(usuarioLogado.cargo)) return <TelaInicio usuarioLogado={usuarioLogado} />;
         return <TelaCadastroUsuario usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao} />;
+        
       case 'gerenUsuarios': 
-        if (usuarioLogado.cargo === 'Aluno' || usuarioLogado.cargo === 'Professor') return <TelaInicio usuarioLogado={usuarioLogado} />;
+        if (['Aluno', 'Monitor 5S', 'Professor'].includes(usuarioLogado.cargo)) return <TelaInicio usuarioLogado={usuarioLogado} />;
         return <TelaGerenciarUsuarios usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao} />;
+        
       case 'historico': 
-        if (usuarioLogado.cargo === 'Aluno' || usuarioLogado.cargo === 'Professor') return <TelaInicio usuarioLogado={usuarioLogado} />;
+        if (['Aluno', 'Monitor 5S', 'Professor'].includes(usuarioLogado.cargo)) return <TelaInicio usuarioLogado={usuarioLogado} />;
         return <TelaHistorico />;
+        
       default: return <TelaInicio usuarioLogado={usuarioLogado} />;
     }
   };
@@ -633,7 +682,16 @@ function App() {
         <h3>Menu do Sistema</h3>
         <button className={telaAtual === 'inicio' ? 'active' : ''} onClick={() => setTelaAtual('inicio')}>🏠 Início</button>
         
+        {/* Aba Denúncia visível para todos */}
+        <button className={telaAtual === 'denuncia' ? 'active' : ''} onClick={() => setTelaAtual('denuncia')}>⚠️ Denúncia</button>
+        
+        {/* Aba Checklist bloqueada apenas para Aluno */}
         {usuarioLogado.cargo !== 'Aluno' && (
+          <button className={telaAtual === 'checklist' ? 'active' : ''} onClick={() => setTelaAtual('checklist')}>✅ Checklist 5S</button>
+        )}
+
+        {/* Abas bloqueadas para Aluno e Monitor 5S */}
+        {!['Aluno', 'Monitor 5S'].includes(usuarioLogado.cargo) && (
           <button className={telaAtual === 'saida' ? 'active' : ''} onClick={() => setTelaAtual('saida')}>🧪 Saída de Insumo</button>
         )}
         
@@ -643,7 +701,7 @@ function App() {
           <button className={telaAtual === 'cadInsumo' ? 'active' : ''} onClick={() => setTelaAtual('cadInsumo')}>➕ Cadastrar Insumo</button>
         )}
 
-        {usuarioLogado.cargo !== 'Aluno' && (
+        {!['Aluno', 'Monitor 5S'].includes(usuarioLogado.cargo) && (
           <button className={telaAtual === 'cadUsuario' ? 'active' : ''} onClick={() => setTelaAtual('cadUsuario')}>👤 Cadastrar Usuário</button>
         )}
 
