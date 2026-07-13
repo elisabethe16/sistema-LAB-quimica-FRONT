@@ -7,10 +7,13 @@ const API_URL = 'https://sistema-lab-quimica-back.onrender.com';
 // ==================== TELA 1: INÍCIO ====================
 const TelaInicio = ({ usuarioLogado }) => (
   <div className="page-container" style={{flexDirection: 'column', alignItems: 'center', minHeight: 'calc(100vh - 80px)', position: 'relative'}}>
-    <div className="form-row" style={{justifyContent: 'center', marginBottom: '30px', marginTop: '30px', gap: '20px'}}>
-      <img src="/logo-eng-quimica.png" alt="Engenharia Química" style={{height: '100px', maxWidth: '100%', objectFit: 'contain'}} />
-      <img src="/logo-uabj.png" alt="UABJ" style={{height: '100px', maxWidth: '100%', objectFit: 'contain'}} />
+    
+    {/* Contêiner das logos alterado para forçar lado a lado no mobile */}
+    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: '20px', marginBottom: '30px', marginTop: '30px', width: '100%' }}>
+      <img src="/logo-eng-quimica.png" alt="Engenharia Química" style={{height: '100px', maxWidth: '45%', objectFit: 'contain'}} />
+      <img src="/logo-uabj.png" alt="UABJ" style={{height: '100px', maxWidth: '45%', objectFit: 'contain'}} />
     </div>
+
     <h2 style={{fontSize: '28px', color: '#000080', textAlign: 'center'}}>Bem-vindo(a) ao Controle de Insumos</h2>
     <p style={{fontSize: '16px', textAlign: 'center'}}>Usuário logado: <strong>{usuarioLogado.nome}</strong> ({usuarioLogado.cargo})</p>
     
@@ -19,7 +22,6 @@ const TelaInicio = ({ usuarioLogado }) => (
     </div>
   </div>
 );
-
 // ==================== TELA 2: REGISTRAR SAÍDA ====================
 const TelaSaidaInsumo = ({ usuarioLogado, mostrarNotificacao }) => {
   const [listaInsumos, setListaInsumos] = useState([]);
