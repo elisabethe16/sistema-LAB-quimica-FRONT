@@ -681,16 +681,8 @@ function App() {
       <div className="sidebar">
         <h3>Menu do Sistema</h3>
         <button className={telaAtual === 'inicio' ? 'active' : ''} onClick={() => setTelaAtual('inicio')}>🏠 Início</button>
-        
-        {/* Aba Denúncia visível para todos */}
-        <button className={telaAtual === 'denuncia' ? 'active' : ''} onClick={() => setTelaAtual('denuncia')}>⚠️ Denúncia</button>
-        
-        {/* Aba Checklist bloqueada apenas para Aluno */}
-        {usuarioLogado.cargo !== 'Aluno' && (
-          <button className={telaAtual === 'checklist' ? 'active' : ''} onClick={() => setTelaAtual('checklist')}>✅ Checklist 5S</button>
-        )}
 
-        {/* Abas bloqueadas para Aluno e Monitor 5S */}
+        {/* Abas de Sistema */}
         {!['Aluno', 'Monitor 5S'].includes(usuarioLogado.cargo) && (
           <button className={telaAtual === 'saida' ? 'active' : ''} onClick={() => setTelaAtual('saida')}>🧪 Saída de Insumo</button>
         )}
@@ -711,6 +703,14 @@ function App() {
             <button className={telaAtual === 'historico' ? 'active' : ''} onClick={() => setTelaAtual('historico')}>📜 Histórico Geral</button>
           </>
         )}
+
+        {/* Abas de Vistoria Movidas para o Final */}
+        <button className={telaAtual === 'denuncia' ? 'active' : ''} onClick={() => setTelaAtual('denuncia')}>⚠️ Denúncia</button>
+        
+        {usuarioLogado.cargo !== 'Aluno' && (
+          <button className={telaAtual === 'checklist' ? 'active' : ''} onClick={() => setTelaAtual('checklist')}>✅ Checklist 5S</button>
+        )}
+
         <button className="btn-sair" onClick={fazerLogout}>Sair</button>
       </div>
 
