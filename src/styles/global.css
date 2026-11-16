@@ -1,0 +1,2 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root{--navy:#0B1F3B;--blue:#4DC9FF;--lilac:#B388FF;--pink:#E0A7FF;--ink:#18233A;--muted:#718096;--surface:#fff;--bg:#F3F6FC;--border:#E4EAF4}*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--ink)}button,input,select{font:inherit}button{cursor:pointer}img{max-width:100%}.eyebrow{font-size:11px;letter-spacing:2px;font-weight:800;color:var(--lilac)}
