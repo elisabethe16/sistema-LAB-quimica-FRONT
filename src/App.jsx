@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './App.css';
-import { API_URL } from './services';
+import { API_URL } from './services.js';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import Notificacoes from './components/Notificacoes';
@@ -14,7 +14,7 @@ import CadastroInsumo from './pages/CadastroInsumo';
 import Acervo from './pages/Acervo';
 import CadastroUsuario from './pages/CadastroUsuario';
 import GerenciarUsuarios from './pages/GerenciarUsuarios';
-import Historico from './pages/Historico';
+import Historico from './pages/Historico';\nimport AlterarSenha from './pages/AlterarSenha';
 
 export default function App() {
  const [usuarioLogado,setUsuarioLogado]=useState(null);
@@ -37,7 +37,7 @@ export default function App() {
  case 'acervo':pagina=<Acervo usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>;break;
  case 'cadUsuario':pagina=!bloqueado?<CadastroUsuario usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>:voltarInicio;break;
  case 'gerenUsuarios':pagina=admin?<GerenciarUsuarios usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>:voltarInicio;break;
- case 'historico':pagina=admin?<Historico/>:voltarInicio;break;
+ case 'historico':pagina=admin?<Historico/>:voltarInicio;break;\n case 'senha':pagina=<AlterarSenha usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>;break;
  default:pagina=<Acervo usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>;
  }
  return <div className="app-shell"><Notificacoes notificacoes={notificacoes}/><Sidebar usuarioLogado={usuarioLogado} telaAtual={telaAtual} setTelaAtual={setTelaAtual} fazerLogout={fazerLogout}/><main className="main-content"><Header/>{pagina}</main><ModalBoasVindas aberto={mostrarBoasVindas} fechar={()=>setMostrarBoasVindas(false)} usuario={usuarioLogado}/></div>;
