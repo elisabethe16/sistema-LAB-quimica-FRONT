@@ -46,7 +46,18 @@ case 'senha':
         mostrarNotificacao={mostrarNotificacao}
     />;
     break;
- case 'historico':pagina=admin?<Historico/>:voltarInicio;break;\n case 'senha':pagina=<AlterarSenha usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>;break;
+case 'historico':
+    pagina = admin ? <Historico /> : voltarInicio;
+    break;
+
+case 'senha':
+    pagina = (
+        <AlterarSenha
+            usuarioLogado={usuarioLogado}
+            mostrarNotificacao={mostrarNotificacao}
+        />
+    );
+    break;
  default:pagina=<Acervo usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>;
  }
  return <div className="app-shell"><Notificacoes notificacoes={notificacoes}/><Sidebar usuarioLogado={usuarioLogado} telaAtual={telaAtual} setTelaAtual={setTelaAtual} fazerLogout={fazerLogout}/><main className="main-content"><Header/>{pagina}</main><ModalBoasVindas aberto={mostrarBoasVindas} fechar={()=>setMostrarBoasVindas(false)} usuario={usuarioLogado}/></div>;
