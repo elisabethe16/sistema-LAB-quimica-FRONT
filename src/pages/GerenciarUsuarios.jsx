@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TelaCadastroUsuario from './CadastroUsuario';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://sistema-lab-quimica-back.onrender.com';
+import { API_URL } from '../services.js';
 const TelaGerenciarUsuarios = ({ usuarioLogado, mostrarNotificacao }) => {
   const [usuarios, setUsuarios] = useState([]);
   const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);

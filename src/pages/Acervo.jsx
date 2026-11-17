@@ -1,8 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TelaCadastroInsumo from './CadastroInsumo';
+import { API_URL } from '../services.js';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://sistema-lab-quimica-back.onrender.com';
+
+const validadeLabel = (item) => {
+    if (item.sem_data_validade || !item.data_validade) return 'Sem validade';
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const data = new Date(`${item.data_validade}T00:00:00`);
+    const dias = Math.ceil((data-hoje)/86400000);
+    if (dias < 0) return `Vencido (${data.toLocaleDateString('pt-BR')})`;
+    if (dias <= 30) return `Próximo do vencimento (${data.toLocaleDateString('pt-BR')})`;
+    return data.toLocaleDateString('pt-BR');
+};
 const TelaAcervo = ({ usuarioLogado, mostrarNotificacao }) => {
   const [insumos, setInsumos] = useState([]);
   const [insumoSelecionado, setInsumoSelecionado] = useState(null);
@@ -117,10 +127,12 @@ const TelaAcervo = ({ usuarioLogado, mostrarNotificacao }) => {
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
             <thead>
               <tr style={{ backgroundColor: '#000080', color: 'white', textAlign: 'left' }}>
+                <th style={{ padding: '10px' }}>Imagem</th>
                 <th style={{ padding: '10px' }}>Insumo</th>
                 <th style={{ padding: '10px' }}>Categoria</th>
                 <th style={{ padding: '10px' }}>Localização</th>
                 <th style={{ padding: '10px' }}>Estoque Atual</th>
+                <th style={{ padding: '10px' }}>Validade</th>
                 {(usuarioLogado.cargo === 'Admin' || usuarioLogado.cargo === 'Coordenador') && <th style={{ padding: '10px', textAlign: 'center' }}>Ações</th>}
               </tr>
             </thead>
@@ -128,10 +140,12 @@ const TelaAcervo = ({ usuarioLogado, mostrarNotificacao }) => {
               {insumosFiltrados.length > 0 ? (
                 insumosFiltrados.map((item) => (
                   <tr key={item.id} style={{ borderBottom: '1px solid #ddd' }}>
+                    <td style={{ padding: '10px' }}>{item.imagem_url ? <img className="acervo-thumb" src={item.imagem_url} alt={item.nome}/> : <span className="no-image">Sem foto</span>}</td>
                     <td style={{ padding: '10px' }}>{item.nome}</td>
                     <td style={{ padding: '10px' }}>{item.categoria}</td>
                     <td style={{ padding: '10px' }}>{item.localizacao}</td>
                     <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>{item.quantidade_estoque} {item.unidade_medida}</td>
+                    <td style={{ padding: '10px', whiteSpace: 'nowrap' }}>{validadeLabel(item)}</td>
                     {(usuarioLogado.cargo === 'Admin' || usuarioLogado.cargo === 'Coordenador') && (
                       <td style={{ padding: '10px', textAlign: 'center', whiteSpace: 'nowrap' }}>
                         <button style={{ padding: '5px 10px', backgroundColor: '#ffc107', border: 'none', borderRadius: '4px', marginRight: '5px' }} onClick={() => setInsumoSelecionado(item)}>✏️</button>
@@ -152,7 +166,7 @@ const TelaAcervo = ({ usuarioLogado, mostrarNotificacao }) => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" style={{ padding: '20px', textAlign: 'center', color: '#666' }}>Nenhum insumo encontrado com estes filtros.</td>
+                  <td colSpan="7" style={{ padding: '20px', textAlign: 'center', color: '#666' }}>Nenhum insumo encontrado com estes filtros.</td>
                 </tr>
               )}
             </tbody>

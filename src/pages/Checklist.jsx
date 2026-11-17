@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://sistema-lab-quimica-back.onrender.com';
+import { API_URL } from '../services.js';
 const TelaChecklist = () => (
   <div className="page-container">
     <div className="card" style={{ textAlign: 'center' }}>

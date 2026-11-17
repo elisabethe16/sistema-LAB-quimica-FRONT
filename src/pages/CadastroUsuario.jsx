@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://sistema-lab-quimica-back.onrender.com';
+import { API_URL } from '../services.js';
 const TelaCadastroUsuario = ({ usuarioParaEditar, fecharEdicao, usuarioLogado, mostrarNotificacao }) => {
   const [form, setForm] = useState({ nome: '', login: '', senha: '', cargo: 'Aluno', matricula: '' });
 
   useEffect(() => {
-    if (usuarioParaEditar) setForm({ nome: usuarioParaEditar.nome, login: usuarioParaEditar.login, senha: usuarioParaEditar.senha, cargo: usuarioParaEditar.cargo, matricula: usuarioParaEditar.matricula || '' });
+    if (usuarioParaEditar) setForm({ nome: usuarioParaEditar.nome, login: usuarioParaEditar.login, senha: '', cargo: usuarioParaEditar.cargo, matricula: usuarioParaEditar.matricula || '' });
   }, [usuarioParaEditar]);
 
   const salvarUsuario = async (e) => {
@@ -34,7 +34,7 @@ const TelaCadastroUsuario = ({ usuarioParaEditar, fecharEdicao, usuarioLogado, m
           <div className="form-group"><label>Nome Completo:</label><input type="text" value={form.nome} onChange={(e) => setForm({...form, nome: e.target.value})} required /></div>
           <div className="form-group"><label>Matrícula / ID:</label><input type="text" value={form.matricula} onChange={(e) => setForm({...form, matricula: e.target.value})} required /></div>
           <div className="form-group"><label>Login de Acesso:</label><input type="text" value={form.login} onChange={(e) => setForm({...form, login: e.target.value})} required /></div>
-          <div className="form-group"><label>Senha:</label><input type="password" value={form.senha} onChange={(e) => setForm({...form, senha: e.target.value})} required /></div>
+          <div className="form-group"><label>Senha:</label><input type="password" value={form.senha} onChange={(e) => setForm({...form, senha: e.target.value})} placeholder={usuarioParaEditar ? 'Deixe em branco para manter a senha atual' : 'Mínimo de 8 caracteres'} minLength={8} required={!usuarioParaEditar} /></div>
           <div className="form-group">
             <label>Cargo:</label>
             <select value={form.cargo} onChange={(e) => setForm({...form, cargo: e.target.value})}>
