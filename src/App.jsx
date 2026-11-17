@@ -14,7 +14,8 @@ import CadastroInsumo from './pages/CadastroInsumo';
 import Acervo from './pages/Acervo';
 import CadastroUsuario from './pages/CadastroUsuario';
 import GerenciarUsuarios from './pages/GerenciarUsuarios';
-import Historico from './pages/Historico';\nimport AlterarSenha from './pages/AlterarSenha';
+import Historico from './pages/Historico';
+import AlterarSenha from './pages/AlterarSenha';
 
 export default function App() {
  const [usuarioLogado,setUsuarioLogado]=useState(null);
@@ -35,8 +36,16 @@ export default function App() {
  case 'saida':pagina=bloqueado?voltarInicio:<Saida usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>;break;
  case 'cadInsumo':pagina=admin?<CadastroInsumo usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>:voltarInicio;break;
  case 'acervo':pagina=<Acervo usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>;break;
- case 'cadUsuario':pagina=!bloqueado?<CadastroUsuario usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>:voltarInicio;break;
- case 'gerenUsuarios':pagina=admin?<GerenciarUsuarios usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>:voltarInicio;break;
+ case 'cadUsuario':pagina=!bloqueado?<CadastroUsuario usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>:voltarInicio;break;case 'historico':
+    pagina = admin ? <Historico /> : voltarInicio;
+    break;
+
+case 'senha':
+    pagina = <AlterarSenha
+        usuarioLogado={usuarioLogado}
+        mostrarNotificacao={mostrarNotificacao}
+    />;
+    break;
  case 'historico':pagina=admin?<Historico/>:voltarInicio;break;\n case 'senha':pagina=<AlterarSenha usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>;break;
  default:pagina=<Acervo usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>;
  }
