@@ -1,66 +1,65 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TelaCadastroUsuario from './CadastroUsuario';
-
 import { API_URL } from '../services.js';
-const TelaGerenciarUsuarios = ({ usuarioLogado, mostrarNotificacao }) => {
+import { Icon } from '../components/UiIcon';
+
+export default function TelaGerenciarUsuarios({ usuarioLogado, mostrarNotificacao }) {
   const [usuarios, setUsuarios] = useState([]);
   const [usuarioSelecionado, setUsuarioSelecionado] = useState(null);
+  const [excluir, setExcluir] = useState(null);
+  const [ocupado, setOcupado] = useState(false);
+  const [erro, setErro] = useState('');
+  const [busca, setBusca] = useState('');
 
-  const carregarUsuarios = () => {
-    axios.get(`${API_URL}/usuarios`).then(res => setUsuarios(res.data.sort((a, b) => a.nome.localeCompare(b.nome))));
-  };
-
+  async function carregarUsuarios() {
+    try {
+      const { data } = await axios.get(`${API_URL}/usuarios`);
+      setUsuarios((data || []).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')));
+      setErro('');
+    } catch (err) {
+      setErro(err.response?.data?.error || 'Não foi possível carregar os usuários.');
+    }
+  }
   useEffect(() => { carregarUsuarios(); }, []);
 
-  if (usuarioSelecionado) {
-    return <TelaCadastroUsuario usuarioParaEditar={usuarioSelecionado} fecharEdicao={() => { setUsuarioSelecionado(null); carregarUsuarios(); }} usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao} />;
+  async function confirmarExclusao() {
+    if (!excluir || ocupado) return;
+    setOcupado(true);
+    try {
+      await axios.delete(`${API_URL}/usuarios/${excluir.id}`, {
+        params: { usuario_responsavel: usuarioLogado.nome }
+      });
+      mostrarNotificacao('Usuário removido com sucesso!', 'success');
+      setExcluir(null);
+      await carregarUsuarios();
+    } catch (err) {
+      mostrarNotificacao(err.response?.data?.error || 'Erro ao remover usuário.', 'error');
+    } finally { setOcupado(false); }
   }
 
-  return (
-    <div className="page-container">
-      <div className="card" style={{ maxWidth: '900px' }}>
-        <h2>Usuários Cadastrados</h2>
-        <div className="table-responsive">
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', minWidth: '600px' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#493c91', color: 'white', textAlign: 'left' }}>
-                <th style={{ padding: '10px' }}>Nome</th>
-                <th style={{ padding: '10px' }}>Matrícula</th>
-                <th style={{ padding: '10px' }}>Login</th>
-                <th style={{ padding: '10px' }}>Cargo</th>
-                <th style={{ padding: '10px', textAlign: 'center' }}>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {usuarios.map(user => (
-                <tr key={user.id} style={{ borderBottom: '1px solid #ddd' }}>
-                  <td style={{ padding: '10px' }}>{user.nome}</td>
-                  <td style={{ padding: '10px' }}>{user.matricula || '---'}</td>
-                  <td style={{ padding: '10px' }}>{user.login}</td>
-                  <td style={{ padding: '10px' }}>{user.cargo}</td>
-                  <td style={{ padding: '10px', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                    <button style={{ padding: '5px 10px', backgroundColor: '#B388FF', border: 'none', borderRadius: '4px', marginRight: '5px' }} onClick={() => setUsuarioSelecionado(user)}>Editar</button>
-                    <button style={{ padding: '5px 10px', backgroundColor: '#a43a62', color: 'white', border: 'none', borderRadius: '4px' }} onClick={async () => {
-                      if (window.confirm('Remover este usuário?')) {
-                        try {
-                          await axios.delete(`${API_URL}/usuarios/${user.id}?usuario_responsavel=${usuarioLogado.nome}`);
-                          mostrarNotificacao('Usuário removido com sucesso!', 'success');
-                          carregarUsuarios();
-                        } catch (error) {
-                          mostrarNotificacao('Erro ao remover usuário.', 'error');
-                        }
-                      }
-                    }}>Excluir</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-};
+  if (usuarioSelecionado) {
+    return <TelaCadastroUsuario usuarioParaEditar={usuarioSelecionado} fecharEdicao={() => {
+      setUsuarioSelecionado(null); carregarUsuarios();
+    }} usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao} />;
+  }
+  const filtrados = usuarios.filter(u => [u.nome, u.login, u.cargo, u.matricula]
+    .some(v => String(v || '').toLocaleLowerCase('pt-BR').includes(busca.toLocaleLowerCase('pt-BR'))));
 
-export default TelaGerenciarUsuarios;
+  return <div className="page-container usuarios-page"><section className="acervo-wrap">
+    <header className="acervo-heading"><div><span className="eyebrow">EQUIPE · CONTROLE</span>
+      <h1>Gerenciar usuários</h1><p>Consulte, edite e gerencie os acessos ao Lab5S.</p></div></header>
+    <div className="acervo-panel">
+      <div className="acervo-filters usuarios-filters"><input aria-label="Buscar usuários" placeholder="Buscar por nome, matrícula, login ou cargo..." value={busca} onChange={e => setBusca(e.target.value)}/><span className="acervo-count">{filtrados.length} usuário(s)</span></div>
+      {erro && <div className="acervo-error" role="alert">{erro} <button onClick={carregarUsuarios}>Tentar novamente</button></div>}
+      <div className="table-responsive"><table className="acervo-table usuarios-table"><thead><tr><th>Nome</th><th>Matrícula</th><th>Login</th><th>Cargo</th><th>Ações</th></tr></thead><tbody>
+        {filtrados.map(user => <tr key={user.id}>
+          <td data-label="Nome"><strong>{user.nome}</strong></td><td data-label="Matrícula">{user.matricula || '—'}</td><td data-label="Login">{user.login}</td><td data-label="Cargo">{user.cargo}</td>
+          <td data-label="Ações"><div className="table-actions"><button type="button" className="edit-action" onClick={() => setUsuarioSelecionado(user)}><Icon name="edit"/><span>Editar</span></button><button type="button" className="delete-action" onClick={() => setExcluir(user)}><Icon name="trash"/><span>Excluir</span></button></div></td>
+        </tr>)}
+        {!filtrados.length && <tr><td className="empty-acervo" colSpan="5">Nenhum usuário encontrado.</td></tr>}
+      </tbody></table></div>
+    </div>
+    {excluir && <div className="confirm-backdrop"><div className="confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="excluir-usuario-titulo"><h2 id="excluir-usuario-titulo">Excluir usuário?</h2><p>Deseja excluir <strong>{excluir.nome}</strong>? Essa ação não pode ser desfeita.</p><div className="confirm-actions"><button type="button" className="btn-cancel" disabled={ocupado} onClick={() => setExcluir(null)}>Cancelar</button><button type="button" className="btn-danger" disabled={ocupado} onClick={confirmarExclusao}>{ocupado ? 'Excluindo...' : 'Confirmar exclusão'}</button></div></div></div>}
+  </section></div>;
+}

@@ -1,0 +1,42 @@
+/* Ajustes visuais Lab5S — preservar paleta e funcionamento existentes */
+.sidebar{padding-top:24px}
+.sidebar nav{padding-top:10px}
+/* Sem logotipo duplicado: a marca permanece no cabeçalho superior. */
+.sidebar-caption{margin-top:2px}
+@media(min-width:851px){
+  .sidebar:not(:hover):not(:focus-within) .sidebar-caption{height:0;margin:0;overflow:hidden}
+  .sidebar:hover .sidebar-caption,.sidebar:focus-within .sidebar-caption{height:auto;margin:0 0 16px}
+}
+.usuarios-page .acervo-wrap{max-width:1450px}
+.usuarios-filters input{max-width:650px}
+.usuarios-table{min-width:700px}
+.usuarios-table th{text-align:left}
+.usuarios-table td{overflow-wrap:anywhere}
+.usuarios-table .table-actions button,.acervo-table .table-actions button{cursor:pointer}
+.usuarios-table .table-actions button:focus-visible,.acervo-table .table-actions button:focus-visible{outline:2px solid #B388FF;outline-offset:2px}
+/* Validade: data e ícone ficam juntos em um campo compacto */
+.validade-field{width:100%;max-width:300px;align-items:stretch}
+.validade-field .validade-input{width:100%;max-width:300px;min-height:46px;padding:10px 12px;color-scheme:light;cursor:pointer}
+.validade-field .validade-input::-webkit-calendar-picker-indicator{cursor:pointer;opacity:.85;padding:4px}
+.validade-field .checkbox-inline{display:flex;align-items:center;gap:9px;cursor:pointer}
+.validade-field .checkbox-inline input{width:17px!important;height:17px;accent-color:#7857D8;flex:none}
+/* Formulários e listas */
+.form-group select{min-height:46px;appearance:none;-webkit-appearance:none;padding:11px 40px 11px 13px;background-color:#fff;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235c4b9b' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;cursor:pointer}
+.form-group select:hover,.form-group input:hover{border-color:#B388FF}
+.form-group select:focus-visible,.form-group input:focus-visible{outline:2px solid #B388FF;outline-offset:1px}
+/* Área de imagem mais clara e compacta, mantendo a seleção e prévia */
+.imagem-field .image-upload-box{width:100%;min-height:130px;padding:18px;border:2px dashed #B388FF;background:#f8f5ff;border-radius:14px;color:#493c91;gap:10px;transition:background .15s,border-color .15s}
+.imagem-field .image-upload-box:hover,.imagem-field .image-upload-box:focus-within{background:#f1ebff;border-color:#7857D8}
+.imagem-field .image-upload-box img{max-width:100%;width:180px;height:120px;object-fit:contain;border-radius:10px}
+.imagem-field .image-upload-box input[type=file]{display:block;width:100%;max-width:440px;border:1px solid #ded6f4;border-radius:9px;background:white;padding:8px;color:#34445D;cursor:pointer;font-size:13px}
+.imagem-field .image-upload-box input[type=file]::file-selector-button{border:0;background:#ece4ff;color:#493c91;border-radius:7px;padding:9px 12px;margin-right:10px;font-weight:700;cursor:pointer}
+@media(max-width:600px){
+  .usuarios-table{min-width:0!important;width:100%}
+  .usuarios-filters input{max-width:none}
+  .usuarios-table td[data-label="Nome"]{display:block;text-align:left}
+  .usuarios-table td[data-label="Nome"]::before{display:block;margin-bottom:6px}
+  .usuarios-table .table-actions{justify-content:flex-end}
+  .validade-field{max-width:300px}
+  .imagem-field .image-upload-box{padding:12px}
+  .imagem-field .image-upload-box input[type=file]{font-size:12px}
+}
