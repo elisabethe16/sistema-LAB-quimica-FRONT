@@ -1,4 +1,2 @@
 import React from 'react';
-export default function Header() {
-  return <header className="app-header"><img src="/lab5s-logo.png" alt="Lab5S"/><div><strong>Lab5S</strong><span>Gestão inteligente do laboratório</span></div><span className="header-campus">UFRPE • UABJ</span></header>;
-}
+export default function Header({abrirMenu}) {return <header className="app-header"><button type="button" className="menu-toggle" onClick={abrirMenu} aria-label="Abrir ou fechar menu" aria-controls="lab5s-sidebar"><span/><span/><span/></button><img src="/lab5s-logo.png" alt="Lab5S"/><div><strong>Lab5S</strong><span>Gestão inteligente do laboratório</span></div><span className="header-campus">UFRPE • UABJ</span></header>}
