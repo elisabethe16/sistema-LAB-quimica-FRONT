@@ -1,22 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
+import { Icon } from '../components/UiIcon';
 
-import { API_URL } from '../services.js';
-const TelaChecklist = () => (
-  <div className="page-container">
-    <div className="card" style={{ textAlign: 'center' }}>
-      <h2 style={{ color: '#28a745' }}>✅ Checklist de Vistoria 5S</h2>
-      <p style={{ marginBottom: '20px', fontSize: '16px' }}>
-        Área destinada à equipe responsável para preenchimento do relatório de manutenção e organização do laboratório (Padrão 5S).
-      </p>
-      
-      <img src="/checklist.jpeg" alt="QR Code Checklist" style={{ maxWidth: '200px', margin: '0 auto 20px', display: 'block', border: '1px solid #ccc', borderRadius: '8px', padding: '10px' }} />
-      
-      <a href="https://forms.gle/GF1pPYNk5V3wSYoG9" target="_blank" rel="noopener noreferrer" className="btn-submit" style={{ display: 'inline-block', textDecoration: 'none', backgroundColor: '#28a745' }}>
-        Abrir Formulário de Vistoria
-      </a>
-    </div>
-  </div>
-);
-
-export default TelaChecklist;
+export default function TelaChecklist() {
+  return <div className="page-container"><section className="card lab-form-page">
+    <div className="lab-form-heading"><span className="lab-form-icon"><Icon name="clipboard-check" size={24}/></span><div><span className="eyebrow">ORGANIZAÇÃO · QUALIDADE</span><h2>Checklist de Vistoria 5S</h2></div></div>
+    <p>Área destinada à equipe responsável pelo preenchimento do relatório de manutenção e organização do laboratório, conforme os princípios 5S.</p>
+    <div className="lab-qr-panel"><img src="/checklist.jpeg" alt="QR Code para acessar o checklist de vistoria"/></div>
+    <a href="https://forms.gle/GF1pPYNk5V3wSYoG9" target="_blank" rel="noopener noreferrer" className="btn-primary lab-form-link">Abrir formulário de vistoria <Icon name="arrow-up-right" size={18}/></a>
+  </section></div>;
+}

@@ -1,22 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
+import { Icon } from '../components/UiIcon';
 
-import { API_URL } from '../services.js';
-const TelaDenuncia = () => (
-  <div className="page-container">
-    <div className="card" style={{ textAlign: 'center' }}>
-      <h2 style={{ color: '#dc3545' }}>⚠️ Reportar Ocorrência</h2>
-      <p style={{ marginBottom: '20px', fontSize: '16px' }}>
-        Encontrou o laboratório desorganizado, materiais fora do lugar ou alguma situação irregular? Faça sua denúncia no formulário abaixo.
-      </p>
-      
-      <img src="/denuncia.jpeg" alt="QR Code Denúncia" style={{ maxWidth: '200px', margin: '0 auto 20px', display: 'block', border: '1px solid #ccc', borderRadius: '8px', padding: '10px' }} />
-      
-      <a href="https://forms.gle/kFNbrvHsak82pAKfA" target="_blank" rel="noopener noreferrer" className="btn-submit" style={{ display: 'inline-block', textDecoration: 'none', backgroundColor: '#dc3545' }}>
-        Abrir Formulário de Denúncia
-      </a>
-    </div>
-  </div>
-);
-
-export default TelaDenuncia;
+export default function TelaDenuncia() {
+  return <div className="page-container"><section className="card lab-form-page">
+    <div className="lab-form-heading"><span className="lab-form-icon"><Icon name="alert-triangle" size={24}/></span><div><span className="eyebrow">SEGURANÇA · COMUNICAÇÃO</span><h2>Reportar ocorrência</h2></div></div>
+    <p>Encontrou o laboratório desorganizado, materiais fora do lugar ou alguma situação irregular? Utilize o formulário abaixo para registrar sua ocorrência.</p>
+    <div className="lab-qr-panel"><img src="/denuncia.jpeg" alt="QR Code para acessar o formulário de ocorrência"/></div>
+    <a href="https://forms.gle/kFNbrvHsak82pAKfA" target="_blank" rel="noopener noreferrer" className="btn-primary lab-form-link">Abrir formulário de ocorrência <Icon name="arrow-up-right" size={18}/></a>
+  </section></div>;
+}

@@ -20,6 +20,7 @@ import AlterarSenha from './pages/AlterarSenha';
 export default function App() {
  const [usuarioLogado,setUsuarioLogado]=useState(null);
  const [menuAberto,setMenuAberto]=useState(false);
+ const [sidebarExpandida,setSidebarExpandida]=useState(false);
  const [telaAtual,setTelaAtual]=useState('acervo');
  const [loginUser,setLoginUser]=useState(''); const [loginSenha,setLoginSenha]=useState('');
  const [notificacoes,setNotificacoes]=useState([]); const [mostrarBoasVindas,setMostrarBoasVindas]=useState(false);
@@ -43,5 +44,5 @@ export default function App() {
  case 'senha': pagina=<AlterarSenha usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>;break;
  default:pagina=<Acervo usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>;
  }
- return <div className="app-shell"><Notificacoes notificacoes={notificacoes}/><Sidebar menuAberto={menuAberto} fecharMenu={()=>setMenuAberto(false)} usuarioLogado={usuarioLogado} telaAtual={telaAtual} setTelaAtual={setTelaAtual} fazerLogout={fazerLogout}/><Header abrirMenu={()=>setMenuAberto(v=>!v)}/><main className="main-content">{pagina}</main><ModalBoasVindas aberto={mostrarBoasVindas} fechar={()=>setMostrarBoasVindas(false)} usuario={usuarioLogado}/></div>;
+ return <div className={"app-shell "+(sidebarExpandida?"desktop-sidebar-expanded":"")}><Notificacoes notificacoes={notificacoes}/><Sidebar aoEntrarMouse={()=>setSidebarExpandida(true)} aoSairMouse={()=>setSidebarExpandida(false)} menuAberto={menuAberto} fecharMenu={()=>setMenuAberto(false)} usuarioLogado={usuarioLogado} telaAtual={telaAtual} setTelaAtual={setTelaAtual} fazerLogout={fazerLogout}/><Header abrirMenu={()=>setMenuAberto(v=>!v)}/><main className="main-content">{pagina}</main><ModalBoasVindas aberto={mostrarBoasVindas} fechar={()=>setMostrarBoasVindas(false)} usuario={usuarioLogado}/></div>;
 }
