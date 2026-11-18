@@ -65,3 +65,22 @@
   .welcome-modal .modal-feature-grid small { display:none; }
   .welcome-modal .modal-content { padding:6px 14px 14px; }
 }
+
+/* Modal renderizado no body: acima do cabeçalho e de qualquer layout. */
+body > .welcome-modal-backdrop {
+  z-index: 99999;
+  pointer-events: auto;
+}
+body > .welcome-modal-backdrop .welcome-modal,
+body > .welcome-modal-backdrop .modal-content,
+body > .welcome-modal-backdrop .modal-close,
+body > .welcome-modal-backdrop .btn-primary {
+  pointer-events: auto;
+}
+body > .welcome-modal-backdrop .modal-close,
+body > .welcome-modal-backdrop .modal-content .btn-primary {
+  position: relative;
+  z-index: 5;
+  cursor: pointer;
+}
+body > .welcome-modal-backdrop .modal-close { position: absolute; }

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Icon } from './UiIcon';
 
 const recursos = [
@@ -9,12 +10,27 @@ const recursos = [
 ];
 
 export default function ModalBoasVindas({ usuario, fechar, aberto }) {
+  useEffect(() => {
+    if (!aberto) return;
+    const aoPressionarTecla = (event) => {
+      if (event.key === 'Escape') fechar();
+    };
+    document.addEventListener('keydown', aoPressionarTecla);
+    return () => document.removeEventListener('keydown', aoPressionarTecla);
+  }, [aberto, fechar]);
+
   if (!aberto) return null;
 
-  return (
-    <div className="welcome-modal-backdrop" role="presentation" onMouseDown={e => { if (e.target === e.currentTarget) fechar(); }}>
+  const fecharModal = (event) => {
+    event?.preventDefault();
+    event?.stopPropagation();
+    fechar();
+  };
+
+  return createPortal(
+    <div className="welcome-modal-backdrop" role="presentation" onClick={e => { if (e.target === e.currentTarget) fecharModal(e); }}>
       <section className="welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
-        <button type="button" className="modal-close" onClick={fechar} aria-label="Fechar boas-vindas">×</button>
+        <button type="button" className="modal-close" onClick={fecharModal} aria-label="Fechar boas-vindas">×</button>
         <div className="modal-mascot"><img src="/axi-mascote.png" alt="Axi, mascote do Lab5S" /></div>
         <div className="modal-content">
           <span className="eyebrow">SEMPRE COM VOCÊ!</span>
@@ -28,9 +44,10 @@ export default function ModalBoasVindas({ usuario, fechar, aberto }) {
               </div>
             ))}
           </div>
-          <button type="button" className="btn-primary" onClick={fechar}>Vamos começar</button>
+          <button type="button" className="btn-primary" onClick={fecharModal}>Vamos começar</button>
         </div>
       </section>
-    </div>
+    </div>,
+    document.body
   );
 }
