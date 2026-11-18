@@ -1,0 +1,91 @@
+/* Lab5S: layout responsivo e menu retrátil. Importar por último. */
+html,body,#root{min-width:0;width:100%;max-width:100%}
+body{overflow-x:hidden}
+.app-shell,.main-content,.page-container,.card,.acervo-wrap,.acervo-panel{min-width:0;max-width:100%}
+.main-content{overflow-x:clip}
+.page-container{width:100%}
+.table-responsive{max-width:100%;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.table-responsive table{width:100%}
+.form-row>*{min-width:0;flex:1}
+input,select,textarea{max-width:100%}
+.sidebar nav button,.sidebar-password,.sidebar-bottom .btn-sair{width:100%;display:flex;align-items:center;gap:12px;min-height:44px}
+.sidebar nav button svg,.sidebar-password svg,.sidebar-bottom .btn-sair svg{flex-shrink:0}
+.sidebar .sidebar-label{white-space:nowrap}
+.table-actions{display:flex;flex-wrap:wrap;gap:7px}
+.table-actions button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:35px;padding:8px 10px;font-weight:700;white-space:nowrap}
+/* Desktop: recolhido por padrão, expande com mouse ou foco do teclado. */
+@media(min-width:851px){
+ .sidebar{width:76px;min-width:76px;padding:18px 12px;transition:width .23s ease,padding .23s ease;overflow-x:hidden;z-index:90;box-shadow:3px 0 14px #07142c12}
+ .sidebar:hover,.sidebar:focus-within{width:260px;min-width:260px;padding:24px 18px}
+ .sidebar-logo{width:48px;height:55px;transition:width .23s ease}
+ .sidebar:hover .sidebar-logo,.sidebar:focus-within .sidebar-logo{width:150px;height:95px}
+ .sidebar-caption,.sidebar .sidebar-label,.sidebar-user{opacity:0;visibility:hidden;transition:opacity .1s ease;pointer-events:none}
+ .sidebar:hover .sidebar-caption,.sidebar:focus-within .sidebar-caption,.sidebar:hover .sidebar-label,.sidebar:focus-within .sidebar-label,.sidebar:hover .sidebar-user,.sidebar:focus-within .sidebar-user{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .15s ease .07s}
+ .sidebar nav button,.sidebar-password,.sidebar-bottom .btn-sair{justify-content:flex-start;padding:12px 14px}
+ .sidebar:not(:hover):not(:focus-within) nav button,.sidebar:not(:hover):not(:focus-within) .sidebar-password,.sidebar:not(:hover):not(:focus-within) .btn-sair{padding:12px 14px}
+ .sidebar-user{overflow:hidden;white-space:nowrap}
+}
+@media(max-width:850px){
+ .sidebar{width:min(310px,88vw)!important;min-width:0!important;max-width:88vw;transform:translateX(-105%);transition:transform .2s ease;overflow-x:hidden!important;box-shadow:8px 0 30px #0003}
+ .sidebar.open{transform:translateX(0)}
+ .sidebar-logo{width:135px;height:auto}
+ .sidebar-caption,.sidebar .sidebar-label,.sidebar-user{opacity:1;visibility:visible;pointer-events:auto}
+ .sidebar nav{display:grid;grid-template-columns:1fr;overflow:visible}
+ .sidebar nav button{white-space:normal;text-align:left}
+ .sidebar-bottom{display:grid;grid-template-columns:1fr;gap:10px}
+ .sidebar-user{display:grid;gap:4px;min-width:0;overflow-wrap:anywhere}
+ .sidebar-user span{display:block}
+ .sidebar .btn-sair{margin:0}
+ .app-header{height:64px;gap:10px;padding:0 12px}
+ .app-header strong{font-size:16px}
+ .app-header div span{font-size:10px}
+ .page-container{padding:12px}
+ .card{padding:16px}
+ .form-row{flex-direction:column;gap:0}
+ .acervo-heading{flex-direction:column;align-items:stretch;gap:12px}
+ .acervo-heading h1{font-size:26px}
+ .export-button{width:100%;justify-content:center}
+ .acervo-filters{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px}
+ .acervo-filters input{grid-column:1/-1;width:100%;flex:auto}
+ .acervo-filters select{width:100%;min-width:0}
+ .acervo-count{grid-column:1/-1}
+ .welcome-page{margin:12px;min-height:0;padding:20px 16px 280px;display:block}
+ .welcome-copy{max-width:100%}
+ .welcome-mascot-wrap{width:100%;height:260px;bottom:8px;right:0;opacity:.75}
+ .welcome-footer{left:16px;bottom:8px}
+ .about-page{margin:12px;max-width:calc(100% - 24px)}
+ .about-body{padding:18px}
+ .notification-container{left:12px;right:12px;top:76px}
+}
+@media(max-width:600px){
+ .acervo-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .acervo-stats article{min-width:0;padding:12px}
+ .acervo-stats span{font-size:11px;overflow-wrap:anywhere}
+ .acervo-stats strong{font-size:25px}
+ .acervo-stats small{font-size:10px;overflow-wrap:anywhere}
+ .acervo-table{min-width:0!important;width:100%}
+ .acervo-table thead{display:none}
+ .acervo-table,.acervo-table tbody,.acervo-table tr,.acervo-table td{display:block;width:100%}
+ .acervo-table tbody{padding:10px}
+ .acervo-table tr{margin-bottom:12px;padding:8px 12px;border:1px solid var(--border);border-radius:12px;background:var(--surface);box-shadow:0 3px 12px #0b1f3b0a}
+ .acervo-table td{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);text-align:right;min-width:0;overflow-wrap:anywhere}
+ .acervo-table td::before{content:attr(data-label);font-size:11px;font-weight:700;color:var(--muted);text-align:left;flex:0 0 90px}
+ .acervo-table td[data-label="Material"]{display:block;text-align:left}
+ .acervo-table td[data-label="Material"]::before{display:block;margin-bottom:8px}
+ .acervo-table td[data-label="Ações"]{align-items:center}
+ .acervo-table td:last-child{border-bottom:0}
+ .acervo-table .material-cell{min-width:0;text-align:left}
+ .acervo-table .status-pill{white-space:normal;text-align:center}
+ .acervo-table .table-actions{justify-content:flex-end}
+ .acervo-table .empty-acervo{display:block;text-align:center}
+ .acervo-table .empty-acervo::before{display:none}
+ .acervo-table .empty-acervo{margin:0}
+ .welcome-modal{max-height:calc(100dvh - 24px);overflow-y:auto}
+ .modal-content{padding:18px}
+ .modal-feature-grid{grid-template-columns:1fr}
+ .modal-mascot{max-height:140px;padding:8px}
+ .modal-mascot img{max-height:120px}
+ .login-card{padding:20px}
+}
+@media(max-width:380px){.acervo-stats{grid-template-columns:1fr}.acervo-filters{grid-template-columns:1fr}.acervo-filters input,.acervo-count{grid-column:1}.acervo-table td::before{flex-basis:75px}}
+@media(prefers-reduced-motion:reduce){.sidebar,.sidebar-logo{transition:none}}
