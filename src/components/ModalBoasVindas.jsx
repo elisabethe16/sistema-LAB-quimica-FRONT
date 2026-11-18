@@ -8,7 +8,9 @@ const recursos = [
   { icon: 'info', titulo: 'Sustentabilidade', descricao: 'Reduza desperdícios e use melhor os recursos.' },
 ];
 
-export default function ModalBoasVindas({ usuario, fechar }) {
+export default function ModalBoasVindas({ usuario, fechar, aberto }) {
+  if (!aberto) return null;
+
   return (
     <div className="welcome-modal-backdrop" role="presentation" onMouseDown={e => { if (e.target === e.currentTarget) fechar(); }}>
       <section className="welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
