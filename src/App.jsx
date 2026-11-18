@@ -43,5 +43,5 @@ export default function App() {
  case 'senha': pagina=<AlterarSenha usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>;break;
  default:pagina=<Acervo usuarioLogado={usuarioLogado} mostrarNotificacao={mostrarNotificacao}/>;
  }
- return <div className="app-shell"><Notificacoes notificacoes={notificacoes}/><Sidebar menuAberto={menuAberto} fecharMenu={()=>setMenuAberto(false)} usuarioLogado={usuarioLogado} telaAtual={telaAtual} setTelaAtual={setTelaAtual} fazerLogout={fazerLogout}/><main className="main-content"><Header abrirMenu={()=>setMenuAberto(v=>!v)}/>{pagina}</main><ModalBoasVindas aberto={mostrarBoasVindas} fechar={()=>setMostrarBoasVindas(false)} usuario={usuarioLogado}/></div>;
+ return <div className="app-shell"><Notificacoes notificacoes={notificacoes}/><Sidebar menuAberto={menuAberto} fecharMenu={()=>setMenuAberto(false)} usuarioLogado={usuarioLogado} telaAtual={telaAtual} setTelaAtual={setTelaAtual} fazerLogout={fazerLogout}/><Header abrirMenu={()=>setMenuAberto(v=>!v)}/><main className="main-content">{pagina}</main><ModalBoasVindas aberto={mostrarBoasVindas} fechar={()=>setMostrarBoasVindas(false)} usuario={usuarioLogado}/></div>;
 }

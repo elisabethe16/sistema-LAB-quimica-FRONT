@@ -1,0 +1,34 @@
+/* Estrutura global: cabeçalho de ponta a ponta, sidebar abaixo dele. */
+:root { --lab-header-height: 82px; --lab-sidebar-collapsed: 76px; }
+.app-shell { display:block; min-height:100vh; width:100%; }
+.app-header {
+  position:fixed; inset:0 0 auto 0;
+  width:100%; height:var(--lab-header-height);
+  box-sizing:border-box; z-index:200;
+  background:var(--navy); border-bottom:1px solid rgba(255,255,255,.12);
+  color:white;
+}
+.app-header strong { color:white; }
+.app-header span, .app-header .header-campus { color:#d8e6fa; }
+.sidebar {
+  position:fixed; left:0; top:var(--lab-header-height); bottom:0;
+  height:calc(100dvh - var(--lab-header-height)); min-height:0;
+  overflow-y:auto; z-index:110;
+}
+.main-content {
+  margin-left:var(--lab-sidebar-collapsed);
+  padding-top:var(--lab-header-height);
+  min-height:100vh;
+  width:calc(100% - var(--lab-sidebar-collapsed));
+  box-sizing:border-box;
+}
+@media(max-width:850px) {
+  :root { --lab-header-height:64px; }
+  .app-header { height:var(--lab-header-height); }
+  .sidebar {
+    position:fixed; top:var(--lab-header-height); bottom:0;
+    height:calc(100dvh - var(--lab-header-height)); min-height:0;
+    z-index:190;
+  }
+  .main-content { margin-left:0; width:100%; padding-top:var(--lab-header-height); }
+}
