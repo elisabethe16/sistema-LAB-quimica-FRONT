@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../services.js';
 
-const vazio = { nome:'', categoria:'Ácidos', localizacao:'Armário 1', quantidade_estoque:'', unidade_medida:'und', data_validade:'', sem_data_validade:true, imagem_url:'' };
+const vazio = { nome:'', categoria:'Ácidos', localizacao:'Armário 1', quantidade_estoque:'', unidade_medida:'und', data_validade:'', sem_data_validade:true, imagem_url:'', quantidade_minima_alerta:0 };
 export default function TelaCadastroInsumo({ insumoParaEditar, fecharEdicao, usuarioLogado, mostrarNotificacao }) {
  const [form,setForm]=useState(vazio);
  const [arquivo,setArquivo]=useState(null);
@@ -45,7 +45,7 @@ export default function TelaCadastroInsumo({ insumoParaEditar, fecharEdicao, usu
        const upload=await axios.post(`${API_URL}/insumos/upload-imagem`,fd,{headers:{'Content-Type':'multipart/form-data'}});
        imagem_url=upload.data.imagem_url;
      }
-     const dados={...form,imagem_url,data_validade:form.sem_data_validade?null:form.data_validade,quantidade_estoque:parseInt(form.quantidade_estoque,10),usuario_responsavel:usuarioLogado.nome};
+     const dados={...form,imagem_url,data_validade:form.sem_data_validade?null:form.data_validade,quantidade_estoque:parseInt(form.quantidade_estoque,10),quantidade_minima_alerta:Number(form.quantidade_minima_alerta),usuario_responsavel:usuarioLogado.nome};
      if(insumoParaEditar){
        await axios.put(`${API_URL}/insumos/${insumoParaEditar.id}`,dados);
        mostrarNotificacao('Insumo atualizado com sucesso!','success'); fecharEdicao();
@@ -63,13 +63,14 @@ export default function TelaCadastroInsumo({ insumoParaEditar, fecharEdicao, usu
   <form onSubmit={salvarInsumo}>
    <div className="form-group"><label>Nome do insumo</label><input value={form.nome} onChange={e=>set('nome',e.target.value)} required/></div>
    <div className="form-row">
-    <div className="form-group" style={{flex:1}}><label>Categoria</label>{!isNovaCategoria?<select value={form.categoria} onChange={e=>e.target.value==='NOVA'?(setIsNovaCategoria(true),set('categoria','')):set('categoria',e.target.value)} required>{categoriasExistentes.map(c=><option key={c}>{c}</option>)}<option value="NOVA">➕ Criar nova...</option></select>:<input autoFocus placeholder="Nova categoria" value={form.categoria} onChange={e=>set('categoria',e.target.value)} required/>}</div>
-    <div className="form-group" style={{flex:1}}><label>Localização</label>{!isNovaLocalizacao?<select value={form.localizacao} onChange={e=>e.target.value==='NOVA'?(setIsNovaLocalizacao(true),set('localizacao','')):set('localizacao',e.target.value)} required>{localizacoesExistentes.map(l=><option key={l}>{l}</option>)}<option value="NOVA">➕ Adicionar local...</option></select>:<input autoFocus placeholder="Ex.: Prateleira 3" value={form.localizacao} onChange={e=>set('localizacao',e.target.value)} required/>}</div>
+    <div className="form-group" style={{flex:1}}><label>Categoria</label>{!isNovaCategoria?<select value={form.categoria} onChange={e=>e.target.value==='NOVA'?(setIsNovaCategoria(true),set('categoria','')):set('categoria',e.target.value)} required>{categoriasExistentes.map(c=><option key={c}>{c}</option>)}<option value="NOVA">Criar nova...</option></select>:<input autoFocus placeholder="Nova categoria" value={form.categoria} onChange={e=>set('categoria',e.target.value)} required/>}</div>
+    <div className="form-group" style={{flex:1}}><label>Localização</label>{!isNovaLocalizacao?<select value={form.localizacao} onChange={e=>e.target.value==='NOVA'?(setIsNovaLocalizacao(true),set('localizacao','')):set('localizacao',e.target.value)} required>{localizacoesExistentes.map(l=><option key={l}>{l}</option>)}<option value="NOVA">Adicionar local...</option></select>:<input autoFocus placeholder="Ex.: Prateleira 3" value={form.localizacao} onChange={e=>set('localizacao',e.target.value)} required/>}</div>
    </div>
    <div className="form-row">
     <div className="form-group" style={{flex:2}}><label>Quantidade em estoque</label><input type="number" min="0" step="1" value={form.quantidade_estoque} onChange={e=>set('quantidade_estoque',e.target.value)} required/></div>
     <div className="form-group" style={{flex:1}}><label>Unidade</label><select value={form.unidade_medida} onChange={e=>set('unidade_medida',e.target.value)}>{['und','g','mg','kg','L','ml'].map(u=><option key={u}>{u}</option>)}</select></div>
    </div>
+   <div className="form-group"><label>Quantidade mínima de alerta</label><input type="number" min="0" step="1" value={form.quantidade_minima_alerta ?? 0} onChange={e=>set('quantidade_minima_alerta',e.target.value)} required/><small>O sistema sinaliza estoque igual ou inferior a esse valor.</small></div>
    <div className="form-group"><label>Imagem do insumo (opcional)</label><label className="image-upload-box">{preview?<img src={preview} alt="Prévia do insumo"/>:<span>＋ Adicionar foto do insumo</span>}<input type="file" accept="image/png,image/jpeg,image/webp" onChange={escolherImagem}/></label><small>JPG, PNG ou WEBP · até 5 MB</small></div>
    <div className="form-group"><label>Validade</label><label className="checkbox-inline"><input type="checkbox" checked={form.sem_data_validade} onChange={e=>setForm(p=>({...p,sem_data_validade:e.target.checked,data_validade:e.target.checked?'':p.data_validade}))}/> Sem data de validade</label>{!form.sem_data_validade&&<input type="date" value={form.data_validade||''} onChange={e=>set('data_validade',e.target.value)} required/>}</div>
    <button type="submit" className="btn-submit" disabled={salvando}>{salvando?'Salvando...':insumoParaEditar?'Salvar alterações':'Salvar insumo'}</button>

@@ -24,7 +24,7 @@ const TelaGerenciarUsuarios = ({ usuarioLogado, mostrarNotificacao }) => {
         <div className="table-responsive">
           <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', minWidth: '600px' }}>
             <thead>
-              <tr style={{ backgroundColor: '#000080', color: 'white', textAlign: 'left' }}>
+              <tr style={{ backgroundColor: '#493c91', color: 'white', textAlign: 'left' }}>
                 <th style={{ padding: '10px' }}>Nome</th>
                 <th style={{ padding: '10px' }}>Matrícula</th>
                 <th style={{ padding: '10px' }}>Login</th>
@@ -40,8 +40,8 @@ const TelaGerenciarUsuarios = ({ usuarioLogado, mostrarNotificacao }) => {
                   <td style={{ padding: '10px' }}>{user.login}</td>
                   <td style={{ padding: '10px' }}>{user.cargo}</td>
                   <td style={{ padding: '10px', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                    <button style={{ padding: '5px 10px', backgroundColor: '#ffc107', border: 'none', borderRadius: '4px', marginRight: '5px' }} onClick={() => setUsuarioSelecionado(user)}>✏️</button>
-                    <button style={{ padding: '5px 10px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px' }} onClick={async () => {
+                    <button style={{ padding: '5px 10px', backgroundColor: '#B388FF', border: 'none', borderRadius: '4px', marginRight: '5px' }} onClick={() => setUsuarioSelecionado(user)}>Editar</button>
+                    <button style={{ padding: '5px 10px', backgroundColor: '#a43a62', color: 'white', border: 'none', borderRadius: '4px' }} onClick={async () => {
                       if (window.confirm('Remover este usuário?')) {
                         try {
                           await axios.delete(`${API_URL}/usuarios/${user.id}?usuario_responsavel=${usuarioLogado.nome}`);
@@ -51,7 +51,7 @@ const TelaGerenciarUsuarios = ({ usuarioLogado, mostrarNotificacao }) => {
                           mostrarNotificacao('Erro ao remover usuário.', 'error');
                         }
                       }
-                    }}>🗑️</button>
+                    }}>Excluir</button>
                   </td>
                 </tr>
               ))}
