@@ -1,0 +1,67 @@
+/* Boas-vindas: gradiente contínuo, sem faixa ou corte na coluna do mascote. */
+.welcome-modal {
+  background: radial-gradient(ellipse at 20% 52%, #343d83 0%, #172852 37%, #0b1f3b 76%);
+  isolation: isolate;
+}
+.welcome-modal .modal-mascot { background: transparent; min-width:0; }
+.welcome-modal .modal-mascot img { display:block; object-fit:contain; width:100%; border-radius:0; }
+.modal-feature-grid .modal-feature b { display:flex; align-items:center; gap:8px; line-height:1.35; }
+.modal-feature-grid .modal-feature svg { color:#b388ff; flex:none; }
+/* Sobre o Lab5S: o mascote inteiro permanece dentro do círculo. */
+.about-hero img {
+  width:150px; height:150px; padding:13px;
+  object-fit:contain; object-position:center;
+  background:radial-gradient(circle,#28295d,#171e43);
+  border:3px solid #b388ff70;
+  flex:none;
+}
+/* Histórico desktop */
+.historico-page { min-width:0; width:100%; }
+.historico-card { max-width:1200px; min-width:0; }
+.historico-table-wrap { width:100%; min-width:0; }
+.historico-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:16px; }
+.historico-table th { text-align:left; background:#493c91; color:white; padding:13px 12px; }
+.historico-table td { padding:12px; border-bottom:1px solid #e4eaf4; vertical-align:top; overflow-wrap:anywhere; }
+.historico-table tbody tr:hover { background:#f7f4ff; }
+.historico-table td:first-child { white-space:nowrap; }
+.historico-empty { text-align:center; color:#718096; }
+@media(max-width:850px) {
+  .welcome-modal-backdrop { padding:10px; align-items:center; }
+  .welcome-modal {
+    width:min(460px,100%); max-height:calc(100dvh - 20px);
+    overflow-y:auto; overscroll-behavior:contain;
+    display:flex; flex-direction:column;
+    border-radius:16px;
+  }
+  .welcome-modal .modal-mascot { padding:12px 12px 0; min-height:0; }
+  .welcome-modal .modal-mascot img { height:115px; max-height:115px; width:auto; max-width:100%; margin:auto; }
+  .welcome-modal .modal-content { padding:8px 18px 18px; }
+  .welcome-modal .modal-content h2 { font-size:clamp(20px,5vw,25px); margin:8px 0; line-height:1.2; }
+  .welcome-modal .modal-content p { font-size:13px; line-height:1.45; margin:8px 0; }
+  .welcome-modal .eyebrow { font-size:9px; }
+  .welcome-modal .modal-feature-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; margin:12px 0; }
+  .welcome-modal .modal-feature-grid .modal-feature { padding:9px; gap:4px; min-width:0; }
+  .welcome-modal .modal-feature-grid b { font-size:12px; }
+  .welcome-modal .modal-feature-grid small { font-size:11px; }
+  .welcome-modal .modal-content .btn-primary { padding:11px; }
+  .welcome-modal .modal-close { top:4px; right:10px; }
+  .about-hero img { width:110px; height:110px; padding:12px; }
+  /* Cada registro vira um cartão legível, sem rolagem horizontal. */
+  .historico-table-wrap { overflow:visible; }
+  .historico-table,.historico-table tbody,.historico-table tr,.historico-table td { display:block; width:100%; min-width:0; }
+  .historico-table thead { display:none; }
+  .historico-table tbody { display:grid; gap:12px; }
+  .historico-table tr { padding:9px 12px; border:1px solid #e4eaf4; border-radius:12px; background:white; }
+  .historico-table td { display:grid; grid-template-columns:minmax(86px,34%) minmax(0,1fr); gap:10px; padding:9px 0; white-space:normal!important; text-align:left; }
+  .historico-table td::before { content:attr(data-label); color:#58677e; font-weight:700; font-size:11px; }
+  .historico-table td:last-child { border-bottom:0; }
+  .historico-table .historico-empty { display:block; text-align:center; }
+  .historico-table .historico-empty::before { display:none; }
+}
+@media(max-width:380px) {
+  .welcome-modal .modal-mascot img { height:85px; }
+  .welcome-modal .modal-feature-grid { grid-template-columns:1fr; }
+  .welcome-modal .modal-feature-grid .modal-feature { padding:7px 9px; }
+  .welcome-modal .modal-feature-grid small { display:none; }
+  .welcome-modal .modal-content { padding:6px 14px 14px; }
+}
